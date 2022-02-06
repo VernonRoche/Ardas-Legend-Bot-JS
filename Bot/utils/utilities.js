@@ -1,9 +1,9 @@
 
-function is_long_text(text){
+function isLongText(text){
     return text.length >= 1900;
 }
 
-function detect_end_of_word(text, position, look_for_format){
+function detectEndOfWord(text, position, look_for_format){
     const slice=text.slice(position);
     if (!look_for_format){
         for (const char of slice){
@@ -27,12 +27,12 @@ function detect_end_of_word(text, position, look_for_format){
     }
 }
 
-function separate_long_text_local(text, look_for_format){
-    if (is_long_text(text)){
-        const separator = detect_end_of_word(text, 1900, look_for_format);
+function separateLongTextLocal(text, look_for_format){
+    if (isLongText(text)){
+        const separator = detectEndOfWord(text, 1900, look_for_format);
         const left= text.slice(0,-(text.length-separator));
         const right = text.slice(separator);
-        return [left].concat(separate_long_text_local(right));
+        return [left].concat(separateLongTextLocal(right));
     }
     else{
         return [text];
@@ -42,9 +42,14 @@ function separate_long_text_local(text, look_for_format){
 module.exports = {
 
     separate_long_text(text, look_for_format=false){
-        return separate_long_text_local(text,look_for_format);
+        return separateLongTextLocal(text,look_for_format);
+    },
+    capitalizeFirstLetters(text){
+        const arr_text = text.split(/[,.\s]+/);
+        for (let i = 0; i < arr_text.length; i++) {
+            arr_text[i] = arr_text[i].charAt(0).toUpperCase() + arr_text[i].slice(1);
+        }
+        return arr_text.join(" ");
     }
-
-
 
 };

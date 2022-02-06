@@ -1,0 +1,155 @@
+@startuml
+class Region <<Entity>> {
+    id_Key: Integer
+    name: String
+    claimedBy: List<Faction>
+    claimbuilds: List<ClaimBuilds>
+    neighboringRegions: List<Region>
+}
+
+class ClaimBuild <<Entity>> {
+    name_Key: String
+    type: ClaimBuildType
+    ownedBy: Faction
+    coordinates: Coordinate
+    stationedArmies: List<Army>
+    createdArmies: List<Army>
+    productionSites: List<ProductionSite>
+    specialBuildings: List<SpecialBuilding>
+    traders: String
+    builtBy: Player
+}
+
+enum ClaimBuildType {
+    HAMLET
+    VILLAGE
+    TOWN
+    CAPITAL
+    KEEP
+    CASTLE
+    STRONGHOLD
+}
+
+class Faction <<Entity>> {
+    name_Key: String
+    factionLeader: Player
+    armies: List<Army>
+    players:  List<Player>
+    regions: List<Region>
+    claimbuilds: List<ClaimBuilds>
+    allies: List<Faction>
+    colorcode: String
+}
+
+class Player <<Entity>> {
+    ign_Key: String
+    discordID_Key: String
+    faction: Faction
+    rpChar: RPChar
+}
+
+class RPChar <<Entity>> {
+    name_Key: String
+    player: Player
+    currentRegion: Region
+    boundTo:
+}
+
+class Coordinate <<Value Object>> {
+    x: Integer
+    y: Integer
+    z: Integer
+}
+
+class ProductionSite <<Value Object>> {
+    type: ProductionSiteType
+    producedResource: String
+    amount: Integer
+}
+
+enum ProductionSiteType {
+    FARM
+    FISHING_LODGE
+    MINE
+    QUARRY
+    MAN_FLESH_PIT
+    SLAUGHTERHOUSE
+    HUNTING_LODGE
+    ORCHARD
+    LUMBER_CAMP
+    WORKSHOP
+}
+
+enum SpecialBuilding {
+    HOUSE_OF_HEALING
+    EMBASSY
+    HARBOUR
+    STABLES
+    BANK
+    INN
+    MARKET
+    SHOP
+    WALL
+}
+
+class Army <<Entity>> {
+    name_Key: String
+    armyType: ArmyType
+    faction: Faction
+    currentRegion: Region
+    boundTo: RPChar
+    units: List<Unit>
+    sieges: List<String>
+    stationedAt: ClaimBuild
+    freeTokens: Integer
+    originalClaimbuild: ClaimBuild
+}
+
+enum ArmyType {
+    ARMY
+    TRADING_COMPANY
+    ARMED_TRADERS
+}
+
+class Unit <<Entity>> {
+    unitType: UnitType
+    count: Integer
+}
+
+class UnitType <<Entity>> {
+    unitName: String
+    tokenCost: Integer
+}
+
+Region -  ClaimBuild
+Region - Region
+Region -down- RPChar
+
+Faction -down- Region
+Faction -right Player
+Faction -left Army
+Faction -up- ClaimBuild
+Faction - Faction
+
+ClaimBuild - Player
+ClaimBuild -right- ClaimBuildType
+ClaimBuild -up- Coordinate
+ClaimBuild - Army
+
+ProductionSite - ClaimBuild
+SpecialBuilding - ClaimBuild
+
+ProductionSite -left- ProductionSiteType
+
+
+RPChar - Player
+
+Army -down- Unit
+Army - Region
+Army - RPChar
+
+ArmyType - Army
+
+UnitType - Unit
+
+@enduml

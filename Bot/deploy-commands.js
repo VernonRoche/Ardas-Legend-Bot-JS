@@ -13,7 +13,7 @@ for (const file of commandFiles) {
 }
 
 
-// noinspection JSCheckFunctionSignatures
+// noinspection JSCheckFunctionSignatures,JSClosureCompilerSyntax
 const rest = new REST({ version: '9' }).setToken(token);
 
 
