@@ -6,8 +6,8 @@ const {token} = require('./configs/bot_token.json');
 
 
 const commands = [];
-const commandFiles = fs.readdirSync('./Bot/commands').filter(file => file.endsWith('.js'));
-const adminCommandFiles = fs.readdirSync('./Bot/commands/admin').filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const adminCommandFiles = fs.readdirSync('./commands/admin').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);

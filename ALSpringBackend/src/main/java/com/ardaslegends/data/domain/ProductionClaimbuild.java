@@ -17,7 +17,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "production_claimbuild")
-public class ProductionClaimbuild {
+public final class ProductionClaimbuild extends AbstractDomainEntity {
 
     @EmbeddedId
     private ProductionClaimbuildId id;

@@ -1,0 +1,17 @@
+#TO USE ME RENAME FILE INTO application.properties
+
+server.port=${PORT:8080}
+logging.level.org.atmosphere = warn
+spring.mustache.check-template-location = false
+
+# Launch the default browser when starting the application in development mode
+vaadin.launch-browser=false
+# PostgreSQL configuration.
+spring.datasource.url = jdbc:postgresql://localhost:5432/NAME_OF_DATABASE
+spring.datasource.username =
+spring.datasource.password =
+spring.jpa.hibernate.ddl-auto = update
+spring.datasource.hikari.auto-commit=false
+# To improve the performance during development.
+# For more information https://vaadin.com/docs/flow/spring/tutorial-spring-configuration.html#special-configuration-parameters
+vaadin.whitelisted-packages = com.vaadin,org.vaadin,dev.hilla,com.ardaslegends

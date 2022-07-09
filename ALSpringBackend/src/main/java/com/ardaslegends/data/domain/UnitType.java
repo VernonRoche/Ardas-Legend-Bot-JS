@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "unit_types")
-public class UnitType {
+public final class UnitType extends AbstractDomainEntity {
 
     @Id
     private String unitName; //unique, the name of this Unit

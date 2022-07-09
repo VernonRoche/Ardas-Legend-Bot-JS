@@ -6,13 +6,13 @@ public enum RegionType {
 
     SEA(1),
     LAND(1),
-    MOUNTAIN(1),
-    FOREST(1),
-    JUNGLE(1),
-    DESERT(1),
-    ICE(1),
-    SWAMP(1),
-    HILL(1);
+    HILL(2),
+    ICE(2),
+    DESERT(3),
+    FOREST(3),
+    SWAMP(4),
+    JUNGLE(5),
+    MOUNTAIN(6);
 
     private final int cost;
     private RegionType(int cost){

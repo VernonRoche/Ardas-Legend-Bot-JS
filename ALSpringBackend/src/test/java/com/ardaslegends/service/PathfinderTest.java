@@ -2,7 +2,7 @@ package com.ardaslegends.service;
 
 import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.RegionRepository;
-import com.ardaslegends.data.service.Path;
+import com.ardaslegends.data.domain.Path;
 import com.ardaslegends.data.service.Pathfinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,12 +39,12 @@ public class PathfinderTest {
         rs1 = new Region("1.S", "one_sea", RegionType.SEA, new HashSet<>(), new ArrayList<>(), new HashSet<>());
         rs2 = new Region("2.S", "two_sea", RegionType.SEA, new HashSet<>(), new ArrayList<>(), new HashSet<>());
 
-        player = new Player("VernonRoche", "VernonRocheDiscord", null, null);
+        player = Player.builder().ign("VernonRoche").discordID("VernonRocheDiscord").build();
         Faction faction_good = new Faction("Gondor", player, new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new ArrayList<>(), new ArrayList<>(), "white", r1, "Double move in Gondor");
         Faction faction_bad = new Faction("Mordor", null, new ArrayList<>(), new ArrayList<>(), new HashSet<>(), new ArrayList<>(), new ArrayList<>(), "black", r3, "Move in Mordor");
 
         Army army = new Army("Test army", ArmyType.ARMY, faction_good, r1, null, new ArrayList<>(), new ArrayList<>(), null, 15, null);
-        RPChar rpchar = new RPChar("Aldwin", r1, army);
+        RPChar rpchar = RPChar.builder().name("Aldwin").currentRegion(r1).boundTo(army).build();
 
         ClaimBuild claimbuild = new ClaimBuild("claimbuild", r2, ClaimBuildType.CAPITAL, faction_good,
                 new Coordinate(1, 1, 1), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),

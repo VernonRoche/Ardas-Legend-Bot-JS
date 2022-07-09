@@ -15,7 +15,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "armies")
-public class Army {
+public final class Army extends AbstractDomainEntity {
 
     @Id
     private String name; //unique, the army's name

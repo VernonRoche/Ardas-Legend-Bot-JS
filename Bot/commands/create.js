@@ -4,7 +4,7 @@ const {addSubcommands} = require("../utils/utilities");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('create')
-        .setDescription('Creates an entity (army, trader etc.)')
+        .setDescription('Creates an entity (RpChar, army, trader etc.)')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('army')
@@ -37,6 +37,27 @@ module.exports = {
         )
         .addSubcommand(subcommand =>
             subcommand
+                .setName('rpchar')
+                .setDescription('Creates a Roleplay Character')
+                .addStringOption(option =>
+                    option.setName('name')
+                        .setDescription("Character's name")
+                        .setRequired(true))
+                .addStringOption(option =>
+                    option.setName('title')
+                        .setDescription("Character's title")
+                        .setRequired(true))
+                .addStringOption(option =>
+                    option.setName('gear')
+                        .setDescription("Character's gear")
+                        .setRequired(true))
+                .addBooleanOption(option =>
+                    option.setName('pvp')
+                        .setDescription('Should the character participate in PvP?')
+                        .setRequired(true))
+        )
+        .addSubcommand(subcommand =>
+            subcommand
                 .setName('armed-company')
                 .setDescription('Creates an armed company')
                 .addStringOption(option =>
@@ -58,7 +79,7 @@ module.exports = {
         ),
     async execute(interaction) {
         // Dynamically get all subcommands for called command
-        const commands = addSubcommands('create', false);
+        const commands = addSubcommands('create', true);
         const toExecute = commands[interaction.options.getSubcommand()];
         toExecute.execute(interaction);
     },

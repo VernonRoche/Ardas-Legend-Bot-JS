@@ -4,13 +4,11 @@ import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.RegionRepository;
 import com.ardaslegends.data.service.exceptions.ServiceException;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Builder

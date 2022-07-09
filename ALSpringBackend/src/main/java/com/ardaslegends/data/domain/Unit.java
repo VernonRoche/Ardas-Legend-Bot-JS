@@ -12,7 +12,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "units")
-public class Unit {
+public final class Unit extends AbstractDomainEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

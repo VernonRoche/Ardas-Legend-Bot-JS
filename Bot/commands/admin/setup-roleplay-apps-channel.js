@@ -23,7 +23,7 @@ module.exports = {
             console.log(JSON.stringify(config));
         });
         const replyEmbed = new MessageEmbed()
-            .setTitle(`Roleplay channel setup`)
+            .setTitle(`Roleplay applications channel setup`)
             .setColor('NAVY')
             .setDescription(`Successfully set the default roleplay applications channel.`)
             .setThumbnail(ADMIN)

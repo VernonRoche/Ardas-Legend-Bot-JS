@@ -1,11 +1,12 @@
 const fs = require("fs");
+const {staffRoles} = require("../configs/config.json");
 
 function isLongText(text) {
     return text.length >= 1900;
 }
 
-function detectEndOfWord(text, position, look_for_format) {
-    const slice = text.slice(position);
+function detectEndOfWord(text, position, look_for_format){
+    const slice=text.slice(position);
     if (!look_for_format) {
         for (const char of slice) {
             position += 1;
@@ -39,7 +40,7 @@ function separateLongTextLocal(text, look_for_format) {
 }
 
 function addSubcommands(parentCommand, hasAdminSubcommands) {
-    let path = `./Bot/commands/subcommands/${parentCommand}/`;
+    let path = `./commands/subcommands/${parentCommand}/`;
     let files = fs.readdirSync(path, (err, tmp_files) => tmp_files.filter(file => file.contains(`${parentCommand}_`)));
     const commands = {};
     for (const file of files) {
@@ -47,7 +48,7 @@ function addSubcommands(parentCommand, hasAdminSubcommands) {
         commands[name] = require(`../commands/subcommands/${parentCommand}/` + file);
     }
     if (hasAdminSubcommands) {
-        path = `./Bot/commands/subcommands/admin/${parentCommand}/`;
+        path = `./commands/subcommands/admin/${parentCommand}/`;
         files = fs.readdirSync(path, (err, tmp_files) => tmp_files.filter(file => file.contains(`${parentCommand}_`)));
         for (const file of files) {
             const name = file.split(`${parentCommand}_`)[1].slice(0, -3);
@@ -55,6 +56,10 @@ function addSubcommands(parentCommand, hasAdminSubcommands) {
         }
     }
     return commands;
+}
+
+function isStaffMember(interaction) {
+    return staffRoles.some(role => interaction.member.roles.cache.has(role));
 }
 
 module.exports = {
@@ -69,6 +74,6 @@ module.exports = {
         }
         return arr_text.join(" ");
     },
-    addSubcommands: addSubcommands
-
+    addSubcommands: addSubcommands,
+    isMemberStaff: isStaffMember
 };

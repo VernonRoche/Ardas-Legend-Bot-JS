@@ -1,10 +1,12 @@
 package com.ardaslegends.data.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
@@ -15,7 +17,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "factions")
-public class Faction {
+public final class Faction extends AbstractDomainEntity {
 
     @Id
     private String name; //unique, name of the faction
@@ -26,6 +28,7 @@ public class Faction {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "faction")
     private List<Army> armies; //all current armies of this faction
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "faction")
+    @JsonIgnore
     private List<Player> players; //all current players of this faction
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "claimedBy")
     private Set<Region> regions; //all regions this faction claims
@@ -45,5 +48,21 @@ public class Faction {
     @Length(max = 512)
     private String factionBuffDescr; //The description of this faction's buff
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Faction faction = (Faction) o;
+        return name.equals(faction.name);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

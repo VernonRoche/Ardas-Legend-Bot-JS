@@ -1,6 +1,7 @@
 # Custom
 Bot/configs/config.json
 Bot/package-lock.json
+Bot/configs/bot_token.json
 
 # Logs
 logs

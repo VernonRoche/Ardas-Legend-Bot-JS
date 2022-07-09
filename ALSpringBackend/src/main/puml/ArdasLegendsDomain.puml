@@ -55,14 +55,18 @@ class Faction <<Entity>> {
 }
 
 class Player <<Entity>> {
-    ign_Key: String
-    discordID_Key: String
+    ign: String
+    uuid: String
+    discordID: String
     faction: Faction
     rpChar: RPChar
 }
 
 class RPChar <<Embeddable>> {
     name: String
+    title: String
+    gear: String
+    pvp: Boolean
     currentRegion: Region
     boundTo: Army
 }

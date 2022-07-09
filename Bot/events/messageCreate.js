@@ -17,6 +17,7 @@ function notifyStaff(guild, message) {
 module.exports = {
     name: 'interactionCreate',
     async execute(msg) {
+        console.log(`${msg.author} in #${msg.channel.name} triggered an interaction.`);
         if (msg.channel.id === rpAppsChannelID) {
             //console.log(`${msg.author.tag} in #${msg.channel.name} sent a message in roleplay apps.`);
             //if (msg.client.user.id === msg.author.id) return;

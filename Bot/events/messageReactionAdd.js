@@ -1,6 +1,6 @@
 const {rpAppsChannelID, upvoteEmoji, downvoteEmoji, staffRoles, staffMajorityCount} = require("../configs/config.json");
 
-function countRPAppReactions(reaction, user) {
+function countRPAppReactions(reaction) {
     if (reaction.message.channel.id === rpAppsChannelID) {
         // Now the message has been cached and is fully available
         console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
@@ -10,7 +10,7 @@ function countRPAppReactions(reaction, user) {
         if ([upvoteEmoji, downvoteEmoji].includes(reaction.emoji.name)) {
             // If the reaction is an upvote or downvote, check if it's by staff
             for (const role of staffRoles) {
-                if (user.roles.cache.has(role)) {
+                if (reaction.message.member.roles.cache.has(role)) {
                     // If the user is staff, check reaction count
                     const upvotes = reaction.message.reactions.cache.get(upvoteEmoji).count;
                     const downvotes = reaction.message.reactions.cache.get(downvoteEmoji).count;
@@ -23,6 +23,7 @@ function countRPAppReactions(reaction, user) {
                             console.log("Denied!");
                         }
                     }
+                    return;
                 }
             }
         }
@@ -47,7 +48,7 @@ module.exports = {
                 return;
             }
         }
-        //countRPAppReactions(reaction, user);
+        countRPAppReactions(reaction);
 
     },
 };

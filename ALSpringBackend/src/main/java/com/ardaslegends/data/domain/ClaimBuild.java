@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "claimbuilds")
-public class ClaimBuild {
+public final class ClaimBuild extends AbstractDomainEntity {
     @Id
     private String name; //unique, name of the claimbuild
 

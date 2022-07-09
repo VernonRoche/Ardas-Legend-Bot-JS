@@ -2,9 +2,7 @@ package com.ardaslegends.data.domain;
 
 
 import lombok.*;
-import org.atmosphere.config.service.Get;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
@@ -21,7 +19,7 @@ import java.io.Serializable;
 @Builder
 
 @Embeddable
-public class ProductionClaimbuildId implements Serializable {
+public final class ProductionClaimbuildId extends AbstractDomainEntity implements Serializable {
 
     private static final long serialVersionUID = -7659401942823299559L;
 

@@ -31,18 +31,9 @@ module.exports = {
                 .setName('character')
                 .setDescription('Move a roleplay character')
                 .addStringOption(option =>
-                    option
-                        .setName('character-name')
-                        .setDescription('Name of the character')
+                    option.setName('end-region')
+                        .setDescription('The destination of the character')
                         .setRequired(true))
-                .addIntegerOption(option =>
-                    option.setName('start-region')
-                        .setDescription('The region from where the army starts moving')
-                        .setRequired(true))
-                .addIntegerOption(option =>
-                    option.setName('destination-region')
-                        .setDescription('The destination of the army')
-                        .setRequired(true)),
         )
         .addSubcommand(subcommand =>
             subcommand
@@ -54,11 +45,11 @@ module.exports = {
                         .setRequired(true))
                 .addIntegerOption(option =>
                     option.setName('start-region')
-                        .setDescription('The region from where the army starts moving')
+                        .setDescription('The region from where the company starts moving')
                         .setRequired(true))
                 .addIntegerOption(option =>
                     option.setName('destination-region')
-                        .setDescription('The destination of the army')
+                        .setDescription('The destination of the company')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('food-type')
@@ -75,11 +66,11 @@ module.exports = {
                         .setRequired(true))
                 .addIntegerOption(option =>
                     option.setName('start-region')
-                        .setDescription('The region from where the army starts moving')
+                        .setDescription('The region from where the armed company starts moving')
                         .setRequired(true))
                 .addIntegerOption(option =>
                     option.setName('destination-region')
-                        .setDescription('The destination of the army')
+                        .setDescription('The destination of the armed company')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('food-type')
