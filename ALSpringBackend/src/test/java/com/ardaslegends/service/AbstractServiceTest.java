@@ -27,7 +27,7 @@ public class AbstractServiceTest {
     @BeforeEach
     void setup() {
         mockRepository = mock(PlayerRepository.class);
-        service = new PlayerService(mockRepository, null, null, null, null, null);
+        service = new PlayerService(mockRepository, null, null);
     }
 
     @Test
