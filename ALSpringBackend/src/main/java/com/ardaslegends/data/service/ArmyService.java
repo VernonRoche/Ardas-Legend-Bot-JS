@@ -1,17 +1,31 @@
 package com.ardaslegends.data.service;
 
 import com.ardaslegends.data.domain.Army;
+<<<<<<< Updated upstream
 import com.ardaslegends.data.domain.Player;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
 import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
+=======
+import com.ardaslegends.data.domain.Faction;
+import com.ardaslegends.data.repository.ArmyRepository;
+import com.ardaslegends.data.repository.FactionRepository;
+import com.ardaslegends.data.repository.UnitTypeRepository;
+import com.ardaslegends.data.service.dto.army.CreateArmyDto;
+>>>>>>> Stashed changes
 import com.ardaslegends.data.service.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< Updated upstream
 import java.util.Optional;
+=======
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
+>>>>>>> Stashed changes
 
 @RequiredArgsConstructor
 @Slf4j
@@ -20,7 +34,44 @@ import java.util.Optional;
 public class ArmyService extends AbstractService<Army, ArmyRepository> {
     private final ArmyRepository armyRepository;
     private final PlayerService playerService;
+    private final FactionRepository factionRepository;
+    private final UnitTypeService unitTypeService;
 
+    public Army createArmy(CreateArmyDto dto) {
+        log.debug("Creating army with data [{}]", dto);
+
+        ServiceUtils.checkAllNulls(dto);
+        ServiceUtils.checkAllBlanks(dto);
+        Arrays.stream(dto.units()).forEach(unitTypeDto -> ServiceUtils.checkAllBlanks(unitTypeDto));
+
+        log.debug("Fetching required Data");
+
+        log.trace("Fetching if an army with name [{}] already exists.", dto.name());
+        Optional<Army> fetchedArmy = secureFind(dto.name(), armyRepository::findById);
+
+        if(fetchedArmy.isPresent()) {
+            log.warn("Army with name [{}] already exists");
+            throw new IllegalArgumentException("Army with name %s already exists, please choose a different name".formatted(dto.name()));
+        }
+
+        log.trace("Fetching Faction with name [{}]", dto.faction());
+        Optional<Faction> fetchedFaction = secureFind(dto.faction(), factionRepository::findById);
+
+        if(fetchedFaction.isEmpty()) {
+            log.warn("No faction found with name [{}]", dto.faction());
+            throw new IllegalArgumentException("No faction found that has the name \"%s\"".formatted(dto.faction()));
+        }
+
+        log.debug("Assembling Units Map, fetching units");
+        var units = Arrays.stream(dto.units())
+                .collect(Collectors.toMap(
+                        unitTypeDto -> unitTypeService.getUnitTypeByName(unitTypeDto.unitTypeName()),
+                        unitTypeDto -> unitTypeDto.amount()
+                ));
+
+        // Not finished
+        return null;
+    }
     @Transactional(readOnly = false)
     public Army bind(BindArmyDto dto) {
         log.debug("Binding army [{}] to player with discord id [{}]", dto.armyName(), dto.targetDiscordId());
@@ -76,5 +127,4 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
 
         log.info("Bound {} [{}] to player [{}]!", army.getArmyType().name(), army.getName(), targetPlayer);
         return army;
-    }
 }
