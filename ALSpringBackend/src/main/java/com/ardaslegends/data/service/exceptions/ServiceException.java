@@ -148,7 +148,7 @@ public class ServiceException extends RuntimeException {
     public static ServiceException noActiveMovement(@NotNull RPChar rpchar) { return new ServiceException(NO_ACTIVE_MOVEMENT.formatted(rpchar.getName())); }
 
     public static ServiceException moreThanOneActiveMovement(@NotNull RPChar rpchar) { return new ServiceException(MORE_THAN_ONE_ACTIVE_MOVEMENT.formatted(rpchar.getName())); }
-    private ServiceException(String message, Throwable rootCause) { super(message, rootCause);}
-    private ServiceException(String message) { super(message);}
+    protected ServiceException(String message, Throwable rootCause) { super(message, rootCause);}
+    protected ServiceException(String message) { super(message);}
 
 }

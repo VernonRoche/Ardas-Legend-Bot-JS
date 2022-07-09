@@ -34,10 +34,7 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
     private final PlayerRepository playerRepository;
 
     private final FactionService factionService;
-    private final RegionRepository regionRepository;
-    private final MovementService movementService;
     private final MojangApiService mojangApiService;
-    private final Pathfinder pathfinder;
 
     @Transactional(readOnly = false)
     public Player createPlayer(CreatePlayerDto dto) {
@@ -75,14 +72,14 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
             log.warn("Player with same IGN or DiscordId has been found! Data {}, Player {}", dto, userQueriedByDiscordID);
             throw ServiceException.cannotCreateEntityThatAlreadyExists(userQueriedByDiscordID.get());
         }
-        log.debug("No player with ign, {} and discordId, {} found in database", dto.ign(), dto.discordID());
+        log.debug("No player with ign, {} and executorDiscordId, {} found in database", dto.ign(), dto.discordID());
 
         // Creating player and Saving into database
 
         log.debug("Trying to create and save entity");
         Player player = Player.builder().ign(dto.ign()).uuid(uuidConverterDto.id()).discordID(dto.discordID()).faction(queriedFaction).build();
 
-        log.debug("Persisting player entity with ign {}, discordId {} into the database", dto.ign(), dto.discordID());
+        log.debug("Persisting player entity with ign {}, executorDiscordId {} into the database", dto.ign(), dto.discordID());
         player = secureSave(player, playerRepository);
 
         log.info("Created Player: {}", dto);
@@ -165,14 +162,14 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
     }
 
     public Player getPlayerByDiscordId(String discordId) {
-        log.debug("Fetching Player with Ign: {}", discordId);
+        log.debug("Fetching Player with Discord ID: {}", discordId);
         Objects.requireNonNull(discordId, "DiscordId must not be null!");
 
         Optional<Player> fetchedPlayer = secureFind(discordId, playerRepository::findByDiscordID);
 
         if (fetchedPlayer.isEmpty()) {
-            log.warn("No player with discordId {} found!", discordId);
-            throw ServiceException.cannotReadEntityDueToNotExisting(Player.class.getSimpleName(), "discordId", discordId);
+            log.warn("No player with executorDiscordId {} found!", discordId);
+            throw ServiceException.cannotReadEntityDueToNotExisting(Player.class.getSimpleName(), "executorDiscordId", discordId);
         }
         log.info("Successfully fetched player: {}", fetchedPlayer.get());
         return fetchedPlayer.get();
@@ -304,8 +301,8 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
         Optional<Player> fetchedPlayer = secureFind(dto.newDiscordId(), playerRepository::findByDiscordID);
 
         if(fetchedPlayer.isPresent()) {
-            log.warn("Player found that is registered with the same discordId [{}] [{}]", dto.newDiscordId(), fetchedPlayer.get());
-            throw new IllegalArgumentException("A Player with the new discordId already exists! [%s]".formatted(fetchedPlayer.get()));
+            log.warn("Player found that is registered with the same executorDiscordId [{}] [{}]", dto.newDiscordId(), fetchedPlayer.get());
+            throw new IllegalArgumentException("A Player with the new executorDiscordId already exists! [%s]".formatted(fetchedPlayer.get()));
         }
 
         log.debug("Update DiscordId of player");
@@ -324,9 +321,9 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
 
         // Checking if data is valid
 
-        ServiceUtils.checkNulls(dto, List.of("discordId", "charName"));
+        ServiceUtils.checkNulls(dto, List.of("executorDiscordId", "charName"));
 
-        ServiceUtils.checkBlanks(dto, List.of("discordId", "charName"));
+        ServiceUtils.checkBlanks(dto, List.of("executorDiscordId", "charName"));
 
         // Get the player entity which is to be updated
         log.debug("Fetching player");
@@ -362,8 +359,8 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
 
         // Checking if data is valid
         log.debug("Validating DTO data");
-        ServiceUtils.checkNulls(dto, List.of("discordId", "title"));
-        ServiceUtils.checkBlanks(dto, List.of("discordId", "title"));
+        ServiceUtils.checkNulls(dto, List.of("executorDiscordId", "title"));
+        ServiceUtils.checkBlanks(dto, List.of("executorDiscordId", "title"));
 
         if(dto.title().length() > 25) {
             log.warn("updateCharacterTitle - title is too long");
@@ -396,8 +393,8 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
 
         // Checking if data is valid
         log.debug("Validating DTO data");
-        ServiceUtils.checkNulls(dto, List.of("discordId", "gear"));
-        ServiceUtils.checkBlanks(dto, List.of("discordId", "gear"));
+        ServiceUtils.checkNulls(dto, List.of("executorDiscordId", "gear"));
+        ServiceUtils.checkBlanks(dto, List.of("executorDiscordId", "gear"));
 
         // Get the player entity which is to be updated
         log.debug("Fetching player");
@@ -427,8 +424,8 @@ public class PlayerService extends AbstractService<Player, PlayerRepository> {
 
         // Checking if data is valid
         log.debug("Validating DTO data");
-        ServiceUtils.checkNulls(dto, List.of("discordId", "pvp"));
-        ServiceUtils.checkBlanks(dto, List.of("discordId", "pvp"));
+        ServiceUtils.checkNulls(dto, List.of("executorDiscordId", "pvp"));
+        ServiceUtils.checkBlanks(dto, List.of("executorDiscordId", "pvp"));
 
         // Get the player entity which is to be updated
         log.debug("Fetching player");

@@ -5,6 +5,10 @@ import com.ardaslegends.data.service.ArmyService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ArmyRepository extends JpaRepository<Army, String> {
+
+    public Optional<Army> findArmyByName(String name);
 }

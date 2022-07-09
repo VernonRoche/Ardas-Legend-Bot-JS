@@ -30,10 +30,6 @@ public class PlayerServiceTest {
     private PlayerRepository mockPlayerRepository;
     private FactionService mockFactionService;
 
-    private MovementService mockMovementService;
-    private Pathfinder mockPathfinder;
-
-    private RegionRepository mockRegionRepository;
     private MojangApiService mockMojangApiService;
     private PlayerService playerService;
 
@@ -42,10 +38,7 @@ public class PlayerServiceTest {
         mockPlayerRepository = mock(PlayerRepository.class);
         mockFactionService = mock(FactionService.class);
         mockMojangApiService = mock(MojangApiService.class);
-        mockMovementService = mock(MovementService.class);
-        mockRegionRepository = mock(RegionRepository.class);
-        mockPathfinder = mock(Pathfinder.class);
-        playerService = new PlayerService(mockPlayerRepository, mockFactionService, mockRegionRepository , mockMovementService ,mockMojangApiService, mockPathfinder );
+        playerService = new PlayerService(mockPlayerRepository, mockFactionService ,mockMojangApiService);
     }
 
     // Create Method Tests
@@ -339,7 +332,7 @@ public class PlayerServiceTest {
         Player existingPlayer = Player.builder().ign(newIgn).build();
 
         log.trace("Initializing updatePlayerDto");
-        UpdatePlayerIgnDto updateDto = new UpdatePlayerIgnDto (newIgn, "discordId");
+        UpdatePlayerIgnDto updateDto = new UpdatePlayerIgnDto (newIgn, "executorDiscordId");
 
         log.trace("Initializing mocked methods");
         when(mockPlayerRepository.findPlayerByIgn(newIgn)).thenReturn(Optional.of(player));

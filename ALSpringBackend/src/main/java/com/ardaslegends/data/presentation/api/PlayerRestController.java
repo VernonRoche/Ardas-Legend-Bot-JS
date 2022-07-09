@@ -137,9 +137,9 @@ public class PlayerRestController extends AbstractRestController {
     public HttpEntity<Player> updatePlayerDiscordId(@RequestBody UpdateDiscordIdDto dto) {
         log.debug("Incoming updateDiscordId Request: Data [{}]", dto);
 
-        log.trace("Trying to update the player's discordId");
+        log.trace("Trying to update the player's executorDiscordId");
         Player player = wrappedServiceExecution(dto, playerService::updateDiscordId);
-        log.debug("Successfully updated discordId without encountering any errors");
+        log.debug("Successfully updated executorDiscordId without encountering any errors");
 
         log.info("Sending HttpResponse with successfully updated Player {}", player);
         return ResponseEntity.ok(player);
