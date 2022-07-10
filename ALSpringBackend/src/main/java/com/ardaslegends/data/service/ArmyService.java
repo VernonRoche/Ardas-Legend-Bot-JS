@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
     private final UnitTypeService unitTypeService;
     private final ClaimBuildRepository claimBuildRepository;
 
+    // TODO: Need to test
     public Army createArmy(CreateArmyDto dto) {
         log.debug("Creating army with data [{}]", dto);
 
@@ -54,7 +57,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         }
 
         log.debug("Assembling Units Map, fetching units");
-        var units = Arrays.stream(dto.units())
+        var unitTypes = Arrays.stream(dto.units())
                 .collect(Collectors.toMap(
                         unitTypeDto -> unitTypeService.getUnitTypeByName(unitTypeDto.unitTypeName()),
                         unitTypeDto -> unitTypeDto.amount()
@@ -69,19 +72,26 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
             throw new IllegalArgumentException("No ClaimBuild found with the name &s".formatted(dto.claimBuildName()));
         }
 
+        ClaimBuild inputClaimBuild = fetchedClaimbuild.get();
+
         log.trace("Finished fetching required data");
 
         log.debug("Checking if ClaimBuild can create another army");
-        //int count = secureFind(fetchedClaimBuild, c)
+
+        if(inputClaimBuild.getCreatedArmies().size() >= inputClaimBuild.getType().getMaxArmies()) {
+            log.warn("Claimbuild [{}] already has max amount of armies created! Armies {}",inputClaimBuild.getCreatedArmies() );
+            throw ArmyServiceException.maxArmyOrCompany(inputClaimBuild.toString(), inputClaimBuild.getCreatedArmies().toString());
+        }
 
         log.debug("Checking if token count does not exceed 30");
-
         // Calculate the tokens that were used
         log.trace("Calculating amount of tokens used");
         int tokenCount = 0;
-        for (UnitType unit: units.keySet()) {
+        List<Unit> units = new ArrayList<>();
+        for (UnitType unit: unitTypes.keySet()) {
             // Get the UnitType cost and multiply it by the count of that unit, which is stored in the units Map
-            tokenCount += unit.getTokenCost() * units.get(unit);
+            tokenCount += unit.getTokenCost() * unitTypes.get(unit);
+            units.add(new Unit(null, unit, null, unitTypes.get(unit),unitTypes.get(unit)));
         }
 
         log.debug("Calculated Token count is [{}]", tokenCount);
@@ -90,9 +100,29 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
             throw ArmyServiceException.tooHighTokenCount(tokenCount);
         }
 
+        log.trace("Assembling Army Object");
+        Army army = new Army(dto.name(),
+                dto.armyType(),
+                fetchedFaction.get(),
+                inputClaimBuild.getRegion(),
+                null,
+                null,
+                null,
+                inputClaimBuild,
+                30-tokenCount,
+                inputClaimBuild);
 
-        // Not finished
-        return null;
+        log.trace("Adding the army to each unit");
+        Army finalArmy = army;
+        units.stream().forEach(unit -> unit.setArmy(finalArmy));
+
+        army.setUnits(units);
+
+        log.debug("Trying to persist the army object");
+        army = secureSave(army, armyRepository);
+
+        log.info("Finished CreateArmy!");
+        return army;
     }
 
     @Transactional(readOnly = false)
