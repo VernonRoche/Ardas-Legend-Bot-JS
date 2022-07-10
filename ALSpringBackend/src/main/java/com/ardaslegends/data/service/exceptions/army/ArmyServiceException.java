@@ -9,8 +9,9 @@ public class ArmyServiceException extends ServiceException{
     private static final String NOT_IN_SAME_REGION = "Army/Company '%s' is not in the same region as character '%s'!";
     private static final String NOT_SAME_FACTION = "You are not in the same faction as army/company '%s'! Your faction: '%s' - army's/company's faction: '%s'!";
     private static final String ALREADY_BOUND = "The army/company '%s' is already bound to the player '%s'!";
-
     private static final String TOO_HIGH_TOKEN_COUNT = "The army's token count exceeds the maximum of 30, it currently is '%s";
+
+    private static final String MAX_ARMY_OR_COMPANIES_CREATED = "The claimbuild '%s' is already at maximum armies/companies created: %s";
 
     public static ArmyServiceException noArmyWithName(String armyName) { return new ArmyServiceException(NO_ARMY_WITH_NAME.formatted(armyName)); }
 
@@ -20,6 +21,7 @@ public class ArmyServiceException extends ServiceException{
     public static ArmyServiceException notSameFaction(String armyName, String playerFactionName, String armyFactionName) { return new ArmyServiceException(NOT_SAME_FACTION.formatted(armyName, playerFactionName, armyFactionName)); }
     public static ArmyServiceException alreadyBound(String armyName, String playerName) { return new ArmyServiceException(ALREADY_BOUND.formatted(armyName, playerName)); }
     public static ArmyServiceException tooHighTokenCount(int tokenCount) {return new ArmyServiceException(TOO_HIGH_TOKEN_COUNT.formatted(tokenCount)); };
+    public static ArmyServiceException maxArmyOrCompany(String claimbuild, String units) {return new ArmyServiceException(MAX_ARMY_OR_COMPANIES_CREATED.formatted(claimbuild, units)); }
     protected ArmyServiceException(String message, Throwable rootCause) {
         super(message, rootCause);
     }
