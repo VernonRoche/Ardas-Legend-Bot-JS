@@ -1,12 +1,10 @@
 package com.ardaslegends.data.service;
 
-import com.ardaslegends.data.domain.Army;
-import com.ardaslegends.data.domain.ClaimBuild;
-import com.ardaslegends.data.domain.Player;
+import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.ArmyRepository;
+import com.ardaslegends.data.repository.ClaimBuildRepository;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
 import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
-import com.ardaslegends.data.domain.Faction;
 import com.ardaslegends.data.repository.FactionRepository;
 import com.ardaslegends.data.service.dto.army.CreateArmyDto;
 import com.ardaslegends.data.service.utils.ServiceUtils;
@@ -15,10 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Optional;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +26,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
     private final PlayerService playerService;
     private final FactionRepository factionRepository;
     private final UnitTypeService unitTypeService;
-    private final ClaimBuildService claimBuildService;
+    private final ClaimBuildRepository claimBuildRepository;
 
     public Army createArmy(CreateArmyDto dto) {
         log.debug("Creating army with data [{}]", dto);
@@ -67,12 +61,36 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
                 ));
 
         log.trace("Fetching Claimbuild with name [{}]", dto.claimBuildName());
-        ClaimBuild fetchedClaimBuild = claimBuildService.getClaimBuildByName(dto.claimBuildName());
+        Optional<ClaimBuild> fetchedClaimbuild = secureFind(dto.claimBuildName(), claimBuildRepository::findById);
+
+        if(fetchedClaimbuild.isEmpty()) {
+            log.warn("No ClaimBuild found with name [{}]", dto.claimBuildName());
+            // TODO: Change to ServiceException, dont know if if it should be in ArmyServiceException, CBServiceException or base SE
+            throw new IllegalArgumentException("No ClaimBuild found with the name &s".formatted(dto.claimBuildName()));
+        }
 
         log.trace("Finished fetching required data");
+
+        log.debug("Checking if ClaimBuild can create another army");
+        //int count = secureFind(fetchedClaimBuild, c)
+
         log.debug("Checking if token count does not exceed 30");
 
+        // Calculate the tokens that were used
+        log.trace("Calculating amount of tokens used");
         int tokenCount = 0;
+        for (UnitType unit: units.keySet()) {
+            // Get the UnitType cost and multiply it by the count of that unit, which is stored in the units Map
+            tokenCount += unit.getTokenCost() * units.get(unit);
+        }
+
+        log.debug("Calculated Token count is [{}]", tokenCount);
+        if(tokenCount > 30) {
+            log.warn("Token count exceeds 30 [{}]", tokenCount);
+            throw ArmyServiceException.tooHighTokenCount(tokenCount);
+        }
+
+
         // Not finished
         return null;
     }
