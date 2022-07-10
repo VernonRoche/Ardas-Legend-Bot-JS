@@ -69,4 +69,8 @@ public final class ClaimBuild extends AbstractDomainEntity {
     private int freeArmiesRemaining; // Every new army decrements this attribute until its at 0
     private int freeTradingCompaniesRemaining; // Every new trading decrements this attribute until its at 0
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }
