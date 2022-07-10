@@ -1,6 +1,7 @@
 package com.ardaslegends.data.service;
 
 import com.ardaslegends.data.domain.Army;
+import com.ardaslegends.data.domain.ClaimBuild;
 import com.ardaslegends.data.domain.Player;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
@@ -17,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +32,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
     private final PlayerService playerService;
     private final FactionRepository factionRepository;
     private final UnitTypeService unitTypeService;
+    private final ClaimBuildService claimBuildService;
 
     public Army createArmy(CreateArmyDto dto) {
         log.debug("Creating army with data [{}]", dto);
@@ -60,6 +66,13 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
                         unitTypeDto -> unitTypeDto.amount()
                 ));
 
+        log.trace("Fetching Claimbuild with name [{}]", dto.claimBuildName());
+        ClaimBuild fetchedClaimBuild = claimBuildService.getClaimBuildByName(dto.claimBuildName());
+
+        log.trace("Finished fetching required data");
+        log.debug("Checking if token count does not exceed 30");
+
+        int tokenCount = 0;
         // Not finished
         return null;
     }

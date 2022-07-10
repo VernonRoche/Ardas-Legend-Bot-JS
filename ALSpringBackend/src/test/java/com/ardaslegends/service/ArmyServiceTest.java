@@ -4,6 +4,7 @@ import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.FactionRepository;
 import com.ardaslegends.data.service.ArmyService;
+import com.ardaslegends.data.service.ClaimBuildService;
 import com.ardaslegends.data.service.PlayerService;
 import com.ardaslegends.data.service.UnitTypeService;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
@@ -26,6 +27,7 @@ public class ArmyServiceTest {
     private FactionRepository mockFactionRepository;
     private PlayerService mockPlayerService;
     private UnitTypeService mockUnitTypeService;
+    private ClaimBuildService mockClaimbuildService;
 
     @BeforeEach
     void setup() {
@@ -33,7 +35,8 @@ public class ArmyServiceTest {
         mockFactionRepository = mock(FactionRepository.class);
         mockPlayerService = mock(PlayerService.class);
         mockUnitTypeService = mock(UnitTypeService.class);
-        armyService = new ArmyService(mockArmyRepository, mockPlayerService, mockFactionRepository, mockUnitTypeService);
+        mockClaimbuildService = mock(ClaimBuildService.class);
+        armyService = new ArmyService(mockArmyRepository, mockPlayerService, mockFactionRepository, mockUnitTypeService, mockClaimbuildService);
     }
 
     @Test

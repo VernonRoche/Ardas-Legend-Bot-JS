@@ -70,7 +70,7 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         }
 
         log.debug("Checking if rpChar is already in a movement");
-        List<Movement> playerMovements = secureFindList(player, movementRepository::findMovementsByPlayer);
+        List<Movement> playerMovements = secureFind(player, movementRepository::findMovementsByPlayer);
         if(playerMovements.stream().anyMatch(Movement::getIsCurrentlyActive)) { //Checking if there are any active movements
             log.warn("Player {} is already involved in a movement!", player);
             throw ServiceException.cannotMoveRpCharAlreadyMoving(player.getRpChar());
@@ -133,7 +133,7 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         }
 
         log.debug("Searching for movements of this player");
-        List<Movement> allMovements = secureFindList(player, movementRepository::findMovementsByPlayer);
+        List<Movement> allMovements = secureFind(player, movementRepository::findMovementsByPlayer);
         log.debug("Found {} movements for player {}", allMovements.size(), player.getIgn());
 
         log.debug("Looking for active movements");
