@@ -20,6 +20,8 @@ public enum ClaimBuildType {
         this.freeTradingCompanies = freeTradingCompanies;
     }
 
+    public int getMaxArmies() {return maxArmies; }
+    public int getMaxTradingCompanies() {return maxTradingCompanies; }
     public int getFreeArmies() {return freeArmies; }
     public int getFreeTradingCompanies() {return freeTradingCompanies; }
 }
