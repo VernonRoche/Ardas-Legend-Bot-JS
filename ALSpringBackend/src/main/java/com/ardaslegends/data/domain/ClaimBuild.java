@@ -66,5 +66,7 @@ public final class ClaimBuild extends AbstractDomainEntity {
             inverseJoinColumns = { @JoinColumn(name = "player_id", foreignKey = @ForeignKey(name = "fk_player_id")) })
     private Set<Player> builtBy; //the player who built the CB
 
+    private int freeArmiesRemaining; // Every new army decrements this attribute until its at 0
+    private int freeTradingCompaniesRemaining; // Every new trading decrements this attribute until its at 0
 
 }
