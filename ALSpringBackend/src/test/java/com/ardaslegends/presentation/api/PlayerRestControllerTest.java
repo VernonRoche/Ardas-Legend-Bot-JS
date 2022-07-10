@@ -211,7 +211,7 @@ public class PlayerRestControllerTest {
 
     @Test
     void ensureUpdateDiscordIdWorksProperly() throws Exception {
-        log.debug("Testing if update executorDiscordId works properly");
+        log.debug("Testing if update discordId works properly");
 
         // Assign
 

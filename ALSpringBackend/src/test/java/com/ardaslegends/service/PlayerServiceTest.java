@@ -332,7 +332,7 @@ public class PlayerServiceTest {
         Player existingPlayer = Player.builder().ign(newIgn).build();
 
         log.trace("Initializing updatePlayerDto");
-        UpdatePlayerIgnDto updateDto = new UpdatePlayerIgnDto (newIgn, "executorDiscordId");
+        UpdatePlayerIgnDto updateDto = new UpdatePlayerIgnDto (newIgn, "discordId");
 
         log.trace("Initializing mocked methods");
         when(mockPlayerRepository.findPlayerByIgn(newIgn)).thenReturn(Optional.of(player));
