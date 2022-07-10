@@ -48,7 +48,7 @@ public class PathfinderTest {
 
         ClaimBuild claimbuild = new ClaimBuild("claimbuild", r2, ClaimBuildType.CAPITAL, faction_good,
                 new Coordinate(1, 1, 1), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                new ArrayList<>(), new ArrayList<>(), "none", "4", new HashSet<>());
+                new ArrayList<>(), new ArrayList<>(), "none", "4", new HashSet<>(),0,0);
 
         // Set up relations
         r1.getClaimedBy().add(faction_good);
