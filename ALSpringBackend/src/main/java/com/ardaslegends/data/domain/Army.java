@@ -60,4 +60,8 @@ public final class Army extends AbstractDomainEntity {
     @NotNull(message = "Army: originalClaimbuld must not be null")
     private ClaimBuild originalClaimbuild; //claimbuild where this army was created from
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }
