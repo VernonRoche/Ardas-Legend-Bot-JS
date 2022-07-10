@@ -44,8 +44,8 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         Optional<Player> fetchedPlayer = secureFind(dto.discordId(), playerRepository::findByDiscordID);
 
         if(fetchedPlayer.isEmpty()) {
-            log.warn("No player found with executorDiscordId [{}]", dto.discordId());
-            throw new IllegalArgumentException("No player found with executorDiscordId [%s]".formatted(dto.discordId()));
+            log.warn("No player found with discordId [{}]", dto.discordId());
+            throw new IllegalArgumentException("No player found with discordId [%s]".formatted(dto.discordId()));
         }
         Player player = fetchedPlayer.get();
         log.trace("Setting the RPChar");
@@ -120,8 +120,8 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         Optional<Player> fetchedPlayer = secureFind(dto.discordId(), playerRepository::findByDiscordID);
 
         if(fetchedPlayer.isEmpty()) {
-            log.warn("No player found with executorDiscordId [{}]", dto.discordId());
-            throw new IllegalArgumentException("No player found with executorDiscordId [%s]".formatted(dto.discordId()));
+            log.warn("No player found with discordId [{}]", dto.discordId());
+            throw new IllegalArgumentException("No player found with discordId [%s]".formatted(dto.discordId()));
         }
         Player player = fetchedPlayer.get();
         RPChar rpChar = player.getRpChar();
