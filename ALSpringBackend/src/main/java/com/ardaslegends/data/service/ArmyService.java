@@ -4,6 +4,7 @@ import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.ClaimBuildRepository;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
+import com.ardaslegends.data.service.dto.unit.UnitTypeDto;
 import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
 import com.ardaslegends.data.repository.FactionRepository;
 import com.ardaslegends.data.service.dto.army.CreateArmyDto;
@@ -44,7 +45,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         Optional<Army> fetchedArmy = secureFind(dto.name(), armyRepository::findById);
 
         if(fetchedArmy.isPresent()) {
-            log.warn("Army with name [{}] already exists");
+            log.warn("Army with name [{}] already exists", dto.name());
             throw new IllegalArgumentException("Army with name %s already exists, please choose a different name".formatted(dto.name()));
         }
 
@@ -60,7 +61,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         var unitTypes = Arrays.stream(dto.units())
                 .collect(Collectors.toMap(
                         unitTypeDto -> unitTypeService.getUnitTypeByName(unitTypeDto.unitTypeName()),
-                        unitTypeDto -> unitTypeDto.amount()
+                        UnitTypeDto::amount
                 ));
 
         log.trace("Fetching Claimbuild with name [{}]", dto.claimBuildName());
@@ -69,7 +70,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         if(fetchedClaimbuild.isEmpty()) {
             log.warn("No ClaimBuild found with name [{}]", dto.claimBuildName());
             // TODO: Change to ServiceException, dont know if if it should be in ArmyServiceException, CBServiceException or base SE
-            throw new IllegalArgumentException("No ClaimBuild found with the name &s".formatted(dto.claimBuildName()));
+            throw new IllegalArgumentException("No ClaimBuild found with the name %s".formatted(dto.claimBuildName()));
         }
 
         ClaimBuild inputClaimBuild = fetchedClaimbuild.get();
@@ -79,7 +80,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         log.debug("Checking if ClaimBuild can create another army");
 
         if(inputClaimBuild.getCreatedArmies().size() >= inputClaimBuild.getType().getMaxArmies()) {
-            log.warn("Claimbuild [{}] already has max amount of armies created! Armies {}",inputClaimBuild.getCreatedArmies() );
+            log.warn("ClaimBuild [{}] already has max amount of armies created! Armies {}",inputClaimBuild ,inputClaimBuild.getCreatedArmies() );
             throw ArmyServiceException.maxArmyOrCompany(inputClaimBuild.toString(), inputClaimBuild.getCreatedArmies().toString());
         }
 
@@ -114,7 +115,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
 
         log.trace("Adding the army to each unit");
         Army finalArmy = army;
-        units.stream().forEach(unit -> unit.setArmy(finalArmy));
+        units.forEach(unit -> unit.setArmy(finalArmy));
 
         army.setUnits(units);
 
