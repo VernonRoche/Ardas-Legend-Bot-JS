@@ -37,7 +37,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
 
         ServiceUtils.checkAllNulls(dto);
         ServiceUtils.checkAllBlanks(dto);
-        Arrays.stream(dto.units()).forEach(unitTypeDto -> ServiceUtils.checkAllBlanks(unitTypeDto));
+        Arrays.stream(dto.units()).forEach(ServiceUtils::checkAllBlanks);
 
         log.debug("Fetching required Data");
 
