@@ -191,7 +191,111 @@ public class ArmyServiceTest {
         assertThat(army.getBoundTo()).isEqualTo(player);
         log.info("Test passed: army binding works properly!");
     }
+    @Test
+    void ensureBindWorksWhenBindingOtherPlayer() {
+        log.debug("Testing if army binding works properly on others!");
 
+        //Assign
+        log.trace("Initializing data");
+        Faction faction = Faction.builder().name("Gondor").build();
+        Region region = Region.builder().id("90").build();
+        RPChar rpChar = RPChar.builder().name("Belegorn").currentRegion(region).build();
+        Player executor = Player.builder().ign("Lüktrönic").discordID("1").faction(faction).rpChar(rpChar).build();
+        Player target = Player.builder().ign("aned").discordID("2").faction(faction).rpChar(rpChar).build();
+        Army army = Army.builder().name("Gondorian Army").currentRegion(region).armyType(ArmyType.ARMY).faction(faction).build();
+
+        faction.setLeader(executor);
+
+        BindArmyDto dto = new BindArmyDto("1", "2", "Gondorian Army");
+
+        when(mockPlayerService.getPlayerByDiscordId("1")).thenReturn(executor);
+        when(mockPlayerService.getPlayerByDiscordId(dto.targetDiscordId())).thenReturn(target);
+        when(mockArmyRepository.findArmyByName("Gondorian Army")).thenReturn(Optional.of(army));
+        when(mockArmyRepository.save(army)).thenReturn(army);
+
+        log.debug("Calling bind()");
+        armyService.bind(dto);
+
+        assertThat(army.getBoundTo()).isEqualTo(target);
+        log.info("Test passed: army binding works properly on other players as faction leader!");
+    }
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenNormalPlayerTriesToBindOtherPlayers() {
+        log.debug("Testing if SE is thrown when normal player tries to bind other players");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Anedhel", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+    }
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenTargetArmyNotFound() {
+        log.debug("Testing if SE is thrown when target army does not exist");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.empty());
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when no Army has been found");
+    }
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenTargetArmyHasDifferentFaction() {
+        log.debug("Testing if SE is thrown when target army has a different faction to the target player");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Faction mordor = Faction.builder().name("Mordor").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(mordor).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when Army is from a different faction");
+    }
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenTargetArmyIsInADifferentRegion() {
+        log.debug("Testing if SE is thrown when target army is in a different region to the player");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Faction mordor = Faction.builder().name("Mordor").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(mordor).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when Army is from a different faction");
+    }
     //TODO add other tests for bind()
 
 }
