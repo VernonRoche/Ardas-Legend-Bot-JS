@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -41,12 +42,12 @@ public final class Army extends AbstractDomainEntity {
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, mappedBy = "army")
     @NotEmpty(message = "Army: units must not be empty")
-    private List<Unit> units; //the units in this army contains
+    private List<Unit> units = new ArrayList<>(); //the units in this army contains
 
     @ElementCollection
     @CollectionTable(name = "army_sieges",
                 joinColumns = @JoinColumn(name = "army_id", foreignKey = @ForeignKey(name = "fk_army_id")))
-    private List<String> sieges; //list of siege equipment this
+    private List<String> sieges = new ArrayList<>(); //list of siege equipment this
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "stationed_at", foreignKey = @ForeignKey(name = "fk_stationed_at"))
     private ClaimBuild stationedAt; //claimbuild where this army is stationed

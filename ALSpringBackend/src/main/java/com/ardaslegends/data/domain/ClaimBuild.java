@@ -4,6 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,23 +40,23 @@ public final class ClaimBuild extends AbstractDomainEntity {
     private Coordinate coordinates; //coordinate locations
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "stationedAt")
-    private List<Army> stationedArmies; //armies which are stationed in this CB
+    private List<Army> stationedArmies = new ArrayList<>(); //armies which are stationed in this CB
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "originalClaimbuild")
-    private List<Army> createdArmies; //armies which were created from this CB. Usually only 1 army, but capitals can create 2
+    private List<Army> createdArmies = new ArrayList<>(); //armies which were created from this CB. Usually only 1 army, but capitals can create 2
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "originalClaimbuild")
-    private List<Army> createdTradingCompanies; //TCs which were created from this CB. Seperated from armies so you can search for them more easily.
+    private List<Army> createdTradingCompanies = new ArrayList<>(); //TCs which were created from this CB. Seperated from armies so you can search for them more easily.
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, mappedBy = "claimbuild")
-    private List<ProductionClaimbuild> productionSites; //the production sites in this cb
+    private List<ProductionClaimbuild> productionSites = new ArrayList<>(); //the production sites in this cb
 
     @ElementCollection(targetClass = SpecialBuilding.class)
     @CollectionTable(name = "claimbuild_special_buildings",
             joinColumns = @JoinColumn(name = "claimbuild_id", foreignKey = @ForeignKey(name = "fk_claimbuild_id")))
     @Column(name = "special_buildings")
     @Enumerated(EnumType.STRING)
-    private List<SpecialBuilding> specialBuildings; //special buildings in this cb, e.g. House of Healing
+    private List<SpecialBuilding> specialBuildings = new ArrayList<>(); //special buildings in this cb, e.g. House of Healing
 
     private String traders; //traders in this CB. e.g. Dwarven Smith. Only relevant for staff so they know which traders need to be added
 
@@ -64,7 +66,7 @@ public final class ClaimBuild extends AbstractDomainEntity {
     @JoinTable(name = "claimbuild_builders",
             joinColumns = { @JoinColumn(name = "claimbuild_id", foreignKey = @ForeignKey(name = "fk_claimbuild_id"))},
             inverseJoinColumns = { @JoinColumn(name = "player_id", foreignKey = @ForeignKey(name = "fk_player_id")) })
-    private Set<Player> builtBy; //the player who built the CB
+    private Set<Player> builtBy = new HashSet<>(); //the player who built the CB
 
     private int freeArmiesRemaining; // Every new army decrements this attribute until its at 0
     private int freeTradingCompaniesRemaining; // Every new trading decrements this attribute until its at 0
