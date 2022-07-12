@@ -11,7 +11,9 @@ import com.ardaslegends.data.service.UnitTypeService;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
 import com.ardaslegends.data.service.dto.army.CreateArmyDto;
 import com.ardaslegends.data.service.dto.unit.UnitTypeDto;
+import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.internal.ServiceDependencyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +49,26 @@ public class ArmyServiceTest {
     // Create Army
     @Test
     void ensureCreateArmyWorksProperly() {
+        log.debug("Testing if createArmy works properly");
 
+        log.trace("Initializing data");
+        CreateArmyDto dto = new CreateArmyDto("Kek", "Kek", ArmyType.ARMY, "Kek", new UnitTypeDto[]{new UnitTypeDto("Kek", 11)});
+        ClaimBuild claimBuild = new ClaimBuild();
+        ClaimBuildType type = ClaimBuildType.TOWN;
+        claimBuild.setType(type);
+
+
+        when(mockArmyRepository.findById(dto.name())).thenReturn(Optional.empty());
+        when(mockFactionRepository.findById(dto.faction())).thenReturn(Optional.of(new Faction()));
+        when(mockUnitTypeService.getUnitTypeByName(any())).thenReturn(new UnitType("Kek", 1.0));
+        when(claimBuildRepository.findById(dto.claimBuildName())).thenReturn(Optional.of(claimBuild));
+        when(mockArmyRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        log.debug("Calling createArmy()");
+        var result = armyService.createArmy(dto);
+
+        assertThat(result.getFreeTokens()).isEqualTo(30-11);
+        log.info("Test passed: CreateArmy works properly with correct values");
     }
 
     @Test
@@ -81,6 +102,7 @@ public class ArmyServiceTest {
         var result = assertThrows(IllegalArgumentException.class, () -> armyService.createArmy(dto));
 
         assertThat(result.getMessage()).contains("No faction found");
+        log.info("Test passed: IAE when no Faction could be found");
     }
     @Test
     void ensureCreateArmyThrowsIAEWhenNoClaimBuildWithInputNameHasBeenFound() {
@@ -99,6 +121,51 @@ public class ArmyServiceTest {
         var result = assertThrows(IllegalArgumentException.class, () -> armyService.createArmy(dto));
 
         assertThat(result.getMessage()).contains("No ClaimBuild found");
+
+        log.info("Test passed: IAE when no ClaimBuild could be found");
+    }
+    @Test
+    void ensureCreateArmyThrowsServiceExceptionWhenClaimBuildHasReachedMaxArmies() {
+        log.debug("Testing if createArmy correctly throws SE when max armies is already reached");
+
+        log.trace("Initializing data");
+        CreateArmyDto dto = new CreateArmyDto("Kek", "Kek", ArmyType.ARMY, "Kek", new UnitTypeDto[]{new UnitTypeDto("Kek", 10)});
+        ClaimBuild claimBuild = new ClaimBuild();
+        ClaimBuildType type = ClaimBuildType.HAMLET;
+        claimBuild.setType(type);
+
+        when(mockArmyRepository.findById(dto.name())).thenReturn(Optional.empty());
+        when(mockFactionRepository.findById(dto.faction())).thenReturn(Optional.of(new Faction()));
+        when(mockUnitTypeService.getUnitTypeByName(any())).thenReturn(new UnitType("Kek", 1.0));
+        when(claimBuildRepository.findById(dto.claimBuildName())).thenReturn(Optional.of(claimBuild));
+
+        log.debug("Expecting SE on call");
+        log.debug("Calling createArmy()");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.createArmy(dto));
+
+        log.info("Test passed: SE on max armies from ClaimBuild");
+    }
+    @Test
+    void ensureCreateArmyThrowsServiceExceptionWhenUnitsExceedAvailableTokens() {
+        log.debug("Testing if createArmy correctly throws SE when units exceed available tokens");
+
+        log.trace("Initializing data");
+        CreateArmyDto dto = new CreateArmyDto("Kek", "Kek", ArmyType.ARMY, "Kek", new UnitTypeDto[]{new UnitTypeDto("Kek", 11)});
+        ClaimBuild claimBuild = new ClaimBuild();
+        ClaimBuildType type = ClaimBuildType.TOWN;
+        claimBuild.setType(type);
+
+
+        when(mockArmyRepository.findById(dto.name())).thenReturn(Optional.empty());
+        when(mockFactionRepository.findById(dto.faction())).thenReturn(Optional.of(new Faction()));
+        when(mockUnitTypeService.getUnitTypeByName(any())).thenReturn(new UnitType("Kek", 3.0));
+        when(claimBuildRepository.findById(dto.claimBuildName())).thenReturn(Optional.of(claimBuild));
+
+        log.debug("Expecting SE on call");
+        log.debug("Calling createArmy()");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.createArmy(dto));
+
+        log.info("Test passed: SE on exceeding token count");
     }
     @Test
     void ensureBindWorksWhenBindingSelf() {
