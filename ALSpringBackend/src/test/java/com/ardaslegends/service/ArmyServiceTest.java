@@ -171,7 +171,7 @@ public class ArmyServiceTest {
     void ensureBindWorksWhenBindingSelf() {
         log.debug("Testing if army binding works properly!");
 
-        //Assing
+        //Assign
         log.trace("Initializing data");
         Faction faction = Faction.builder().name("Gondor").build();
         Region region = Region.builder().id("90").build();
