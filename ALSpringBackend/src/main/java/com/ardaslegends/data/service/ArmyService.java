@@ -176,8 +176,22 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         // TODO: Check for Wanderer or Allied Faction
         log.debug("Checking if army and player are in the same faction");
         if (!army.getFaction().equals(targetPlayer.getFaction())) {
-            log.warn("Army [{}] and player [{}] are not in the same faction (army: [{}], player: [{}])", army.getName(), targetPlayer, army.getFaction(), targetPlayer.getFaction());
-            throw ArmyServiceException.notSameFaction(army.getName(), targetPlayer.getFaction().getName(), army.getFaction().getName());
+            log.debug("Player and army are not in the same faction");
+            log.debug("Checking if the faction is allied to the players faction");
+            //TODO Check for allied faction
+            log.debug("Checking if the player is a wanderer");
+            if(targetPlayer.getFaction().getName().equals("Wanderer")) {
+                log.debug("Target player is a wanderer - checking if executor is faction leader");
+                //TODO Check for Lords as well
+                if(!executor.getFaction().getLeader().equals(executor)) {
+                    log.warn("Player [{}] is not faction leader of [{}] and therefore cannot bind wanderers!", executor, executor.getFaction());
+                    throw ArmyServiceException.onlyLeaderCanBindWanderer();
+                }
+            }
+            else {
+                log.warn("Army [{}] and player [{}] are not in the same faction (army: [{}], player: [{}])", army.getName(), targetPlayer, army.getFaction(), targetPlayer.getFaction());
+                throw ArmyServiceException.notSameFaction(army.getName(), targetPlayer.getFaction().getName(), army.getFaction().getName());
+            }
         }
 
         log.debug("Checking if army and player are in the same region");

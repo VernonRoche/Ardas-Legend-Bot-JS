@@ -6,6 +6,7 @@ public class ArmyServiceException extends ServiceException{
 
     private static final String NO_ARMY_WITH_NAME = "No army with the name '%s' found!";
     private static final String PLAYER_NOT_FACTION_LEADER = "You are not the faction leader or a lord of '%s' and therefore cannot (un)bind other players!";
+    private static final String ONLY_FACTION_LEADER_CAN_BIND_WANDERER = "Only the faction leader or a lord can bind wanderers to armies!";
     private static final String NOT_IN_SAME_REGION = "Army/Company '%s' is not in the same region as character '%s'!";
     private static final String NOT_SAME_FACTION = "You are not in the same faction as army/company '%s'! Your faction: '%s' - army's/company's faction: '%s'!";
     private static final String ALREADY_BOUND = "The army/company '%s' is already bound to the player '%s'!";
@@ -22,6 +23,8 @@ public class ArmyServiceException extends ServiceException{
     public static ArmyServiceException alreadyBound(String armyName, String playerName) { return new ArmyServiceException(ALREADY_BOUND.formatted(armyName, playerName)); }
     public static ArmyServiceException tooHighTokenCount(int tokenCount) {return new ArmyServiceException(TOO_HIGH_TOKEN_COUNT.formatted(tokenCount)); };
     public static ArmyServiceException maxArmyOrCompany(String claimbuild, String units) {return new ArmyServiceException(MAX_ARMY_OR_COMPANIES_CREATED.formatted(claimbuild, units)); }
+    public static ArmyServiceException onlyLeaderCanBindWanderer() {return new ArmyServiceException(ONLY_FACTION_LEADER_CAN_BIND_WANDERER);}
+
     protected ArmyServiceException(String message, Throwable rootCause) {
         super(message, rootCause);
     }
