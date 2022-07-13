@@ -173,6 +173,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         Army army = fetchedArmy.get();
         log.debug("Found army [{}] - type: [{}]", army.getName(), army.getArmyType().name());
 
+        // TODO: Check for Wanderer or Allied Faction
         log.debug("Checking if army and player are in the same faction");
         if (!army.getFaction().equals(targetPlayer.getFaction())) {
             log.warn("Army [{}] and player [{}] are not in the same faction (army: [{}], player: [{}])", army.getName(), targetPlayer, army.getFaction(), targetPlayer.getFaction());
