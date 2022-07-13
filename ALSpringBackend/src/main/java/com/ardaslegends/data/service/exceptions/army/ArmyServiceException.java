@@ -11,7 +11,7 @@ public class ArmyServiceException extends ServiceException{
     private static final String NOT_SAME_FACTION = "You are not in the same faction as army/company '%s'! Your faction: '%s' - army's/company's faction: '%s'!";
     private static final String ALREADY_BOUND = "The army/company '%s' is already bound to the player '%s'!";
     private static final String TOO_HIGH_TOKEN_COUNT = "The army's token count exceeds the maximum of 30, it currently is '%s";
-
+    private static final String CANNOT_MOVE_ARMY_DUE_TO_ALREADY_MOVING = "Cannot move army '%s' because it is already in a movement! Cancel its movement to submit a new one";
     private static final String MAX_ARMY_OR_COMPANIES_CREATED = "The claimbuild '%s' is already at maximum armies/companies created: %s";
 
     public static ArmyServiceException noArmyWithName(String armyName) { return new ArmyServiceException(NO_ARMY_WITH_NAME.formatted(armyName)); }
@@ -24,7 +24,7 @@ public class ArmyServiceException extends ServiceException{
     public static ArmyServiceException tooHighTokenCount(int tokenCount) {return new ArmyServiceException(TOO_HIGH_TOKEN_COUNT.formatted(tokenCount)); };
     public static ArmyServiceException maxArmyOrCompany(String claimbuild, String units) {return new ArmyServiceException(MAX_ARMY_OR_COMPANIES_CREATED.formatted(claimbuild, units)); }
     public static ArmyServiceException onlyLeaderCanBindWanderer() {return new ArmyServiceException(ONLY_FACTION_LEADER_CAN_BIND_WANDERER);}
-
+    public static ArmyServiceException cannotMoveArmyDueToArmyBeingInMovement(String armyName) {return new ArmyServiceException(CANNOT_MOVE_ARMY_DUE_TO_ALREADY_MOVING.formatted(armyName));}
     protected ArmyServiceException(String message, Throwable rootCause) {
         super(message, rootCause);
     }
