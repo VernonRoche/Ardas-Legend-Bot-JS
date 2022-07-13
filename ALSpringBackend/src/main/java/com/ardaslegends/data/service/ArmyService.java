@@ -126,6 +126,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         return army;
     }
 
+    // TODO: Check if RPChar or Army has a movement that is active
     @Transactional(readOnly = false)
     public Army bind(BindArmyDto dto) {
         log.debug("Binding army [{}] to player with discord id [{}]", dto.armyName(), dto.targetDiscordId());
