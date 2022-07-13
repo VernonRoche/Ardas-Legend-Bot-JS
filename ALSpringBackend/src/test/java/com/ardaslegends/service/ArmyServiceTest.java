@@ -282,10 +282,11 @@ public class ArmyServiceTest {
         log.trace("Initializing data");
         BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
         Faction gondor = Faction.builder().name("Gondor").build();
-        Faction mordor = Faction.builder().name("Mordor").build();
-        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
-        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
-        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(mordor).build();
+        Region region1 = Region.builder().id("90").build();
+        Region region2 = Region.builder().id("91").build();
+        RPChar rpchar = RPChar.builder().name("Belegorn").currentRegion(region1).build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).currentRegion(region2).build();
 
         when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
         when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
@@ -294,8 +295,30 @@ public class ArmyServiceTest {
         log.trace("Expecting ServiceException");
         var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
 
-        log.info("Test passed: bind() correctly throws SE when Army is from a different faction");
+        log.info("Test passed: bind() correctly throws SE when Army is in a different region");
     }
-    //TODO add other tests for bind()
+
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenTargetArmyIsBoundToAPlayer() {
+        log.debug("Testing if SE is thrown when target army is already bound to a player");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Region region = Region.builder().id("90").build();
+        RPChar rpchar = RPChar.builder().name("Belegorn").currentRegion(region).build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Player aned = Player.builder().discordID("1235").faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).currentRegion(region).boundTo(aned).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when Army is already bound to another player");
+    }
 
 }
