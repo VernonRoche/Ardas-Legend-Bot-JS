@@ -24,7 +24,7 @@ public final class Army extends AbstractDomainEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "army_type")
-    @NotEmpty(message = "Army: Army Type must not be null or empty")
+    @NotNull(message = "Army: Army Type must not be null or empty")
     private ArmyType armyType; //type of the army, either ARMY, TRADING_COMPANY or ARMED_TRADERS
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -34,7 +34,7 @@ public final class Army extends AbstractDomainEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "current_Region", foreignKey = @ForeignKey(name = "fk_current_region"))
-    @NotNull(message = "Army: Region must not be null")
+    //@NotNull(message = "Army: Region must not be null")
     private Region currentRegion; //region the army is currently in
 
     @OneToOne(mappedBy = "rpChar.boundTo", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -42,7 +42,6 @@ public final class Army extends AbstractDomainEntity {
     private Player boundTo; //rp character the army is currently bound to
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, mappedBy = "army")
-    @NotEmpty(message = "Army: units must not be empty")
     private List<Unit> units = new ArrayList<>(); //the units in this army contains
 
     @ElementCollection
@@ -53,12 +52,11 @@ public final class Army extends AbstractDomainEntity {
     @JoinColumn(name = "stationed_at", foreignKey = @ForeignKey(name = "fk_stationed_at"))
     private ClaimBuild stationedAt; //claimbuild where this army is stationed
 
-    @NotNull(message = "Army: freeTokens must not be null")
+    //@NotNull(message = "Army: freeTokens must not be null")
     private Integer freeTokens; //how many free unit tokens this army has left
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "origin_claimbuild", foreignKey = @ForeignKey(name = "fk_origin_claimbuild"))
-    @NotNull(message = "Army: originalClaimbuld must not be null")
     private ClaimBuild originalClaimbuild; //claimbuild where this army was created from
 
     @Override
