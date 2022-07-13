@@ -1,6 +1,7 @@
 package com.ardaslegends.data.service;
 
 import com.ardaslegends.data.domain.*;
+import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.MovementRepository;
 import com.ardaslegends.data.repository.PlayerRepository;
 import com.ardaslegends.data.repository.RegionRepository;
@@ -26,7 +27,7 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
 
     private final MovementRepository movementRepository;
     private final RegionRepository regionRepository;
-
+    private final ArmyRepository armyRepository;
     private final PlayerRepository playerRepository;
     private final Pathfinder pathfinder;
 

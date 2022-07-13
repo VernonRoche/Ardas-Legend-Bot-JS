@@ -1,6 +1,7 @@
 package com.ardaslegends.service;
 
 import com.ardaslegends.data.domain.*;
+import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.MovementRepository;
 import com.ardaslegends.data.repository.PlayerRepository;
 import com.ardaslegends.data.repository.RegionRepository;
@@ -30,7 +31,7 @@ public class MovementServiceTest {
 
     private MovementRepository mockMovementRepository;
     private RegionRepository mockRegionRepository;
-
+    private ArmyRepository mockArmyRepository;
     private PlayerRepository mockPlayerRepository;
     private Pathfinder mockPathfinder;
 
@@ -41,8 +42,9 @@ public class MovementServiceTest {
         mockMovementRepository = mock(MovementRepository.class);
         mockRegionRepository = mock(RegionRepository.class);
         mockPlayerRepository = mock(PlayerRepository.class);
+        mockArmyRepository = mock(ArmyRepository.class);
         mockPathfinder = mock(Pathfinder.class);
-        movementService = new MovementService(mockMovementRepository, mockRegionRepository, mockPlayerRepository, mockPathfinder);
+        movementService = new MovementService(mockMovementRepository, mockRegionRepository, mockArmyRepository, mockPlayerRepository, mockPathfinder);
     }
 
     @Test
