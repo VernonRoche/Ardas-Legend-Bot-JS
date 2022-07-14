@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 public class ServiceException extends RuntimeException {
 
     private static final String NO_REGIONS_TO_VISIT = "Encountered Error in pathfinder, no more regions to visit! Start region [%s], End region [%s]";
-
+    private static final String DESIRED_REGION_DOES_NOT_EXIST = "Desired destination region '%s' does not exist in the database.";
     // Create
     private static final String CANNOT_CREATE_DUE_TO_DATABASE_PROBLEMS_WITH_NULL_ENTITY = "Cannot create entity due to database problems!";
     private static final String CANNOT_CREATE_ENTITY_DUE_TO_DATABASE_PROBLEMS = "Cannot create entity of type %s (%s) due to database problems!";
@@ -144,6 +144,8 @@ public class ServiceException extends RuntimeException {
         String msg = CANNOT_MOVE_RPCHAR_DUE_TO_ALREADY_MOVING.formatted(rpchar.getName());
         return new ServiceException(msg);
     }
+
+    public static ServiceException regionDoesNotExist(@NotNull String toRegion) {return new ServiceException(DESIRED_REGION_DOES_NOT_EXIST.formatted(toRegion)); }
 
     public static ServiceException noActiveMovement(@NotNull RPChar rpchar) { return new ServiceException(NO_ACTIVE_MOVEMENT.formatted(rpchar.getName())); }
 
