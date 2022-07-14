@@ -35,10 +35,28 @@ public class MovementRepositoryTest {
         assertThat(result.isEmpty()).isTrue();
 
         log.trace("Saving test entity");
-        Army kekArmy = Army.builder().name("Kek").armyType(ArmyType.ARMY).faction(Faction.builder().name("KekFaction").build()).build();
+        Region region = Region.builder()
+                .id("KekRegion")
+                .build();
+        Army kekArmy = Army.builder()
+                .name("Kek")
+                .armyType(ArmyType.ARMY)
+                .faction(Faction.builder()
+                        .name("KekFaction").build())
+                .currentRegion(region)
+                .freeTokens(20)
+                .build();
         kekArmy = armyRepository.save(kekArmy);
-        Movement movement = Movement.builder().army(kekArmy).isCurrentlyActive(true).build();
-        Movement movement2 = Movement.builder().army(kekArmy).isCurrentlyActive(false).build();
+        Movement movement = Movement.builder()
+                .army(kekArmy)
+                .isCurrentlyActive(true)
+                .build();
+
+        Movement movement2 = Movement.builder()
+                .army(kekArmy)
+                .isCurrentlyActive(false)
+                .build();
+
         repository.save(movement2);
 
         log.trace("Calling query, expecting that a result is empty");

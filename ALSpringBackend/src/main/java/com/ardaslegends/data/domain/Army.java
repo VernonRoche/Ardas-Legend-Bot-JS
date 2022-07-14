@@ -34,7 +34,7 @@ public final class Army extends AbstractDomainEntity {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "current_Region", foreignKey = @ForeignKey(name = "fk_current_region"))
-    //@NotNull(message = "Army: Region must not be null")
+    @NotNull(message = "Army: Region must not be null")
     private Region currentRegion; //region the army is currently in
 
     @OneToOne(mappedBy = "rpChar.boundTo", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -52,7 +52,7 @@ public final class Army extends AbstractDomainEntity {
     @JoinColumn(name = "stationed_at", foreignKey = @ForeignKey(name = "fk_stationed_at"))
     private ClaimBuild stationedAt; //claimbuild where this army is stationed
 
-    //@NotNull(message = "Army: freeTokens must not be null")
+    @NotNull(message = "Army: freeTokens must not be null")
     private Integer freeTokens; //how many free unit tokens this army has left
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
