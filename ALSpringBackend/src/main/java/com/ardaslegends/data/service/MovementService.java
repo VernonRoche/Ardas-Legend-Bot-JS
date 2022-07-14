@@ -5,9 +5,12 @@ import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.MovementRepository;
 import com.ardaslegends.data.repository.PlayerRepository;
 import com.ardaslegends.data.repository.RegionRepository;
+import com.ardaslegends.data.service.dto.army.CreateArmyDto;
+import com.ardaslegends.data.service.dto.army.MoveArmyDto;
 import com.ardaslegends.data.service.dto.player.DiscordIdDto;
 import com.ardaslegends.data.service.dto.player.rpchar.MoveRpCharDto;
 import com.ardaslegends.data.service.exceptions.ServiceException;
+import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
 import com.ardaslegends.data.service.utils.ServiceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,6 +35,112 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
     private final PlayerRepository playerRepository;
     private final Pathfinder pathfinder;
 
+    // TODO: Check if time is frozen -> if yes, cancel request
+    // TODO: Check if army is in a battle -> if yes, cancel request
+    // TODO: Check if army is healing -> if yes, ask to stop healing
+    @Transactional(readOnly = false)
+    public Movement createArmyMovement(MoveArmyDto dto) {
+        log.debug("Trying to move Army [{}] executed by [{}] to Region [{}]", dto.armyName(), dto.executorDiscordId(), dto.toRegion());
+
+        ServiceUtils.checkAllNulls(dto);
+        ServiceUtils.checkAllBlanks(dto);
+
+        log.debug("Fetching required data");
+
+        log.trace("Fetching player");
+        Optional<Player> fetchedPlayer = secureFind(dto.executorDiscordId(), playerRepository::findByDiscordID);
+
+        if(fetchedPlayer.isEmpty()) {
+            // TODO: Change to ServiceException
+            log.warn("Player with discId [{}] was not found", dto.executorDiscordId());
+            throw new IllegalArgumentException("You are not registered! Please register your account");
+        }
+        Player player = fetchedPlayer.get();
+
+        log.trace("Fetching army entity");
+        Optional<Army> fetchedArmy = secureFind(dto.armyName(), armyRepository::findArmyByName);
+
+        if(fetchedArmy.isEmpty()) {
+            // TODO: Change to ServiceException
+            log.warn("Army with name [{}] was not found", dto.armyName());
+            throw new IllegalArgumentException("There was no army with the name '%s' found in the database".formatted(dto.armyName()));
+        }
+        Army army = fetchedArmy.get();
+
+        log.trace("Fetching region entity");
+        Optional<Region> fetchedRegion = secureFind(dto.toRegion(), regionRepository::findById);
+
+        if(fetchedRegion.isEmpty()) {
+            log.warn("Desired region [{}] does not exist in the database", dto.toRegion());
+            throw ServiceException.regionDoesNotExist(dto.toRegion());
+        }
+        Region region = fetchedRegion.get();
+
+        log.debug("Checking if army is already in the desired region");
+        if(dto.toRegion().equals(army.getCurrentRegion())) {
+            log.warn("Army is already in desired region [{}], no movement required");
+            throw ArmyServiceException.cannotMoveArmyAlreadyInRegion(army.toString(),dto.toRegion());
+        }
+
+        log.debug("Checking if army is currently performing a movement");
+        if(secureFind(army, movementRepository::findMovementByArmyAndIsCurrentlyActiveTrue).isPresent()) {
+            log.warn("Army [{}] is currently performing a movement", dto.armyName());
+            throw ArmyServiceException.cannotMoveArmyDueToArmyBeingInMovement(army.getName());
+        }
+
+        log.debug("Checking if executor is allowed to perform the movement");
+        boolean isAllowed = false;
+
+        log.trace("Checking if the executor is bound to the army");
+        if(Objects.equals(player, army.getBoundTo())) {
+            log.trace("Executor is bound to the army, allowed to move it!");
+            isAllowed = true;
+        }
+
+        log.trace("Checking if the army is in the same faction");
+        if(!isAllowed && !player.getFaction().equals(army.getFaction())) {
+            log.warn("CreateArmyMovement: Movement denied, army and player are not in the same faction");
+            throw ArmyServiceException.cannotMoveArmyDueToPlayerAndArmyBeingInDifferentFactions(army.getName());
+        }
+
+        log.trace("Checking if the player is the faction leader");
+        if(!isAllowed && player.equals(army.getFaction().getLeader())) {
+            log.trace("Executor is the leader of the armies faction, allowed to move it!");
+            isAllowed = true;
+        }
+
+        // TODO: Check Lordship -> once system is implemented, lords may also be allowed to move armies
+        // log.trace("Checking if the player is a Lord and has permission to move armies");
+
+        if(!isAllowed) {
+            log.warn("Player [{}] in Faction [{}] does not have permission to move armies", player.getIgn(), player.getFaction());
+            throw ArmyServiceException.notAllowedToMoveArmiesThatAreNotBoundToYou();
+        }
+
+        log.debug("Player [{}] is allowed to move army [{}], executing pathfinder", player, army);
+        Path path = pathfinder.findShortestWay(army.getCurrentRegion(),region,player, false);
+
+        var currentTime = LocalDateTime.now();
+        log.debug("Creating movement object");
+        Movement movement = Movement.builder()
+                .army(army)
+                .player(army.getBoundTo())
+                .isCharMovement(false)
+                .isAccepted(false)
+                .isCurrentlyActive(true)
+                .startTime(currentTime)
+                .endTime(currentTime.plusDays(path.getCost()))
+                .path(path)
+                .build();
+
+        log.debug("Saving Movement to database");
+        movement = secureSave(movement, movementRepository);
+
+        log.info("Successfully saved movement [{}]", movement);
+        return movement;
+    }
+
+    // TODO: Check if player is healing
     @Transactional(readOnly = false)
     public Movement createRpCharMovement(MoveRpCharDto dto) {
         log.debug("Moving RpChar of player {} to Region {}", dto.discordId(), dto.toRegion());
@@ -162,4 +272,6 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
 
         return movement;
     }
+
+
 }
