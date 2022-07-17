@@ -237,7 +237,7 @@ public class PlayerServiceTest {
         // Assert
         var result = assertThrows(ServiceException.class, () -> playerService.getPlayerByDiscordId(discordId));
 
-        assertThat(result.getMessage()).contains("No record of type");
+        assertThat(result.getMessage()).contains("No Player found for Discord");
     }
 
     // ------------------------------------------------ Update Method tests
