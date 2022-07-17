@@ -9,6 +9,7 @@ import com.ardaslegends.data.service.dto.army.CreateArmyDto;
 import com.ardaslegends.data.service.dto.army.MoveArmyDto;
 import com.ardaslegends.data.service.dto.player.DiscordIdDto;
 import com.ardaslegends.data.service.dto.player.rpchar.MoveRpCharDto;
+import com.ardaslegends.data.service.exceptions.PlayerServiceException;
 import com.ardaslegends.data.service.exceptions.ServiceException;
 import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
 import com.ardaslegends.data.service.utils.ServiceUtils;
@@ -51,9 +52,8 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         Optional<Player> fetchedPlayer = secureFind(dto.executorDiscordId(), playerRepository::findByDiscordID);
 
         if(fetchedPlayer.isEmpty()) {
-            // TODO: Change to ServiceException
             log.warn("Player with discId [{}] was not found", dto.executorDiscordId());
-            throw new IllegalArgumentException("You are not registered! Please register your account");
+            throw PlayerServiceException.notRegistered();
         }
         Player player = fetchedPlayer.get();
 
@@ -61,9 +61,8 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         Optional<Army> fetchedArmy = secureFind(dto.armyName(), armyRepository::findArmyByName);
 
         if(fetchedArmy.isEmpty()) {
-            // TODO: Change to ServiceException
             log.warn("Army with name [{}] was not found", dto.armyName());
-            throw new IllegalArgumentException("There was no army with the name '%s' found in the database".formatted(dto.armyName()));
+            throw ArmyServiceException.noArmyWithName(dto.armyName());
         }
         Army army = fetchedArmy.get();
 
