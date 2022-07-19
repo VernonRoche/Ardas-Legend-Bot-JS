@@ -25,4 +25,8 @@ public class Path {
        this.cost = 0;
        this.path = new ArrayList<>(1);
     }
+
+    public String getDestination() {
+        return path.get(path.size()-1);
+    }
 }
