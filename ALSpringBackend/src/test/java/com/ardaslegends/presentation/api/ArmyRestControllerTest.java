@@ -3,6 +3,7 @@ package com.ardaslegends.presentation.api;
 import com.ardaslegends.data.domain.Army;
 import com.ardaslegends.data.presentation.api.ArmyRestController;
 import com.ardaslegends.data.service.ArmyService;
+import com.ardaslegends.data.service.dto.army.BindArmyDto;
 import com.ardaslegends.data.service.dto.army.CreateArmyDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -36,7 +37,7 @@ public class ArmyRestControllerTest {
     }
 
     @Test
-    void ensureCreateArmyWorksProperly() throws Exception{
+    void ensureCreateArmyRequestWorksProperly() throws Exception{
         log.debug("Testing if ArmyRestController createArmy works properly with correct values");
 
         // Assign
@@ -52,6 +53,28 @@ public class ArmyRestControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("http://localhost:8080/api/army/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void ensureBindArmyRequestWorksProperly() throws Exception{
+        log.debug("Testing if ArmyRestController bindArmy works properly with correct values");
+
+        // Assign
+        BindArmyDto dto = new BindArmyDto("1234", "1234", "Knights of Gondor");
+
+        when(mockArmyService.bind(dto)).thenReturn(new Army());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+
+        String requestJson = ow.writeValueAsString(dto);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("http://localhost:8080/api/army/bind-army")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk());
