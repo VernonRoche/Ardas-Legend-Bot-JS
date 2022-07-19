@@ -3,6 +3,7 @@ package com.ardaslegends.data.service;
 import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.ClaimBuildRepository;
+import com.ardaslegends.data.repository.MovementRepository;
 import com.ardaslegends.data.service.dto.army.BindArmyDto;
 import com.ardaslegends.data.service.dto.unit.UnitTypeDto;
 import com.ardaslegends.data.service.exceptions.army.ArmyServiceException;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ArmyService extends AbstractService<Army, ArmyRepository> {
     private final ArmyRepository armyRepository;
+    private final MovementRepository movementRepository;
     private final PlayerService playerService;
     private final FactionRepository factionRepository;
     private final UnitTypeService unitTypeService;
@@ -205,6 +207,22 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         if (army.getBoundTo() != null) {
             log.warn("Army [{}] is already bound to another player [{}]!", army.getName(), army.getBoundTo());
             throw ArmyServiceException.alreadyBound(army.getName(), army.getBoundTo().getIgn());
+        }
+
+        log.debug("Checking if army is in an active movement");
+        Optional<Movement> armyActiveMove = movementRepository.findMovementByArmyAndIsCurrentlyActiveTrue(army);
+        if(armyActiveMove.isPresent()) {
+            String destinationRegion =  armyActiveMove.get().getPath().getDestination();
+            log.warn("Army [{}] is currently moving to region [{}] and therefore cannot be bound to player [{}]!", army.getName(), destinationRegion, targetPlayer);
+            throw ArmyServiceException.cannotBindArmyIsMoving(army.getName(), destinationRegion);
+        }
+
+        log.debug("Checking if rp char is in an active movement");
+        Optional<Movement> charActiveMove = movementRepository.findMovementByPlayerAndIsCurrentlyActiveTrue(targetPlayer);
+        if(charActiveMove.isPresent()) {
+            String destinationRegion =  charActiveMove.get().getPath().getDestination();
+            log.warn("Character [{}] is currently moving to region [{}] and therefore cannot be bound to army [{}]!", targetPlayer, destinationRegion, army.getName());
+            throw ArmyServiceException.cannotBindCharIsMoving(army.getName(), destinationRegion);
         }
 
         log.debug("Binding army [{}] to player [{}]...", army.getName(), targetPlayer);

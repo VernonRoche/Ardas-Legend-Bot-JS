@@ -17,6 +17,8 @@ public class ArmyServiceException extends ServiceException{
     private static final String CANNOT_MOVE_ARMY_DUE_TO_PLAYER_AND_ARMY_BEING_IN_DIFFERENT_FACTIONS = "Army '%s' could not be moved since it is in a different faction!";
     private static final String NO_PERMISSION_TO_MOVE_ARMY = "You do not have the permission to move armies that you are not bound to!";
     private static final String CANNOT_MOVE_ARMY_ALREADY_IN_REGION = "Army '%s' is already in the desired region of '%s'";
+    private static final String CANNOT_BIND_ARMY_IS_MOVING = "The army '%s' is currently moving to '%s' - cancel the movement before binding to it!";
+    private static final String CANNOT_BIND_CHAR_IS_MOVING = "The character '%s' is currently moving to '%s' - cancel the movement before binding to an army!";
     public static ArmyServiceException noArmyWithName(String armyName) { return new ArmyServiceException(NO_ARMY_WITH_NAME.formatted(armyName)); }
 
     public static ArmyServiceException notFactionLeader(String factionName) { return new ArmyServiceException(PLAYER_NOT_FACTION_LEADER.formatted(factionName)); }
@@ -31,6 +33,8 @@ public class ArmyServiceException extends ServiceException{
     public static ArmyServiceException cannotMoveArmyDueToPlayerAndArmyBeingInDifferentFactions(String armyName) {return new ArmyServiceException(CANNOT_MOVE_ARMY_DUE_TO_PLAYER_AND_ARMY_BEING_IN_DIFFERENT_FACTIONS.formatted(armyName)); }
     public static ArmyServiceException notAllowedToMoveArmiesThatAreNotBoundToYou() {return new ArmyServiceException(NO_PERMISSION_TO_MOVE_ARMY);}
     public static ArmyServiceException cannotMoveArmyAlreadyInRegion(String armyName, String region) {return new ArmyServiceException(CANNOT_MOVE_ARMY_ALREADY_IN_REGION.formatted(armyName,region));}
+    public static ArmyServiceException cannotBindArmyIsMoving(String armyName, String region) {return new ArmyServiceException((CANNOT_BIND_ARMY_IS_MOVING).formatted(armyName, region));}
+    public static ArmyServiceException cannotBindCharIsMoving(String charName, String region) {return new ArmyServiceException((CANNOT_BIND_CHAR_IS_MOVING).formatted(charName, region));}
     protected ArmyServiceException(String message, Throwable rootCause) {
         super(message, rootCause);
     }

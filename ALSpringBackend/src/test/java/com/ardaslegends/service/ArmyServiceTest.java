@@ -4,6 +4,7 @@ import com.ardaslegends.data.domain.*;
 import com.ardaslegends.data.repository.ArmyRepository;
 import com.ardaslegends.data.repository.ClaimBuildRepository;
 import com.ardaslegends.data.repository.FactionRepository;
+import com.ardaslegends.data.repository.MovementRepository;
 import com.ardaslegends.data.service.ArmyService;
 import com.ardaslegends.data.service.ClaimBuildService;
 import com.ardaslegends.data.service.PlayerService;
@@ -31,6 +32,7 @@ public class ArmyServiceTest {
     private ArmyService armyService;
 
     private ArmyRepository mockArmyRepository;
+    private MovementRepository mockMovementRepository;
     private FactionRepository mockFactionRepository;
     private PlayerService mockPlayerService;
     private UnitTypeService mockUnitTypeService;
@@ -39,11 +41,12 @@ public class ArmyServiceTest {
     @BeforeEach
     void setup() {
         mockArmyRepository = mock(ArmyRepository.class);
+        mockMovementRepository = mock(MovementRepository.class);
         mockFactionRepository = mock(FactionRepository.class);
         mockPlayerService = mock(PlayerService.class);
         mockUnitTypeService = mock(UnitTypeService.class);
         claimBuildRepository = mock(ClaimBuildRepository.class);
-        armyService = new ArmyService(mockArmyRepository, mockPlayerService, mockFactionRepository, mockUnitTypeService, claimBuildRepository);
+        armyService = new ArmyService(mockArmyRepository, mockMovementRepository,mockPlayerService, mockFactionRepository, mockUnitTypeService, claimBuildRepository);
     }
 
     // Create Army
