@@ -242,28 +242,14 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
             throw ServiceException.noRpChar();
         }
 
-        log.debug("Searching for movements of this player");
-        List<Movement> allMovements = secureFind(player, movementRepository::findMovementsByPlayer);
-        log.debug("Found {} movements for player {}", allMovements.size(), player.getIgn());
-
-        log.debug("Looking for active movements");
-        List<Movement> activeMovements = allMovements.stream().filter(Movement::getIsCurrentlyActive).toList();
-
-        log.debug("Checking if there is an active movement that can be cancelled");
-        if(activeMovements.size() == 0) {
+        log.debug("Searching for active movements of this player");
+        Optional<Movement> activeMovement = secureFind(player, movementRepository::findMovementByPlayerAndIsCurrentlyActiveTrue);
+        if(activeMovement.isEmpty()) {
             log.warn("No active movements for player {}", player.getIgn());
             throw ServiceException.noActiveMovement(rpChar);
         }
-
-        //THIS SHOULD NEVER HAPPEN - CHECKING JUST IN CASE
-        log.debug("Checking if there are more than 1 active movements");
-        if(activeMovements.size() > 1) {
-            log.warn("Found more than one active movement for player {} - cancelling process", player.getIgn());
-            throw ServiceException.moreThanOneActiveMovement(rpChar);
-        }
-
         log.debug("Setting movement to inactive");
-        Movement movement = activeMovements.get(0);
+        Movement movement = activeMovement.get();
         movement.setIsCurrentlyActive(false);
 
         log.debug("Persisting movement");

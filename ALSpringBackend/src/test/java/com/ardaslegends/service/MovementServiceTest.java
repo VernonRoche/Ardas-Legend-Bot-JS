@@ -263,7 +263,7 @@ public class MovementServiceTest {
 
         log.trace("Mocking methods");
         when(mockPlayerRepository.findByDiscordID("1234")).thenReturn(Optional.of(player));
-        when(mockMovementRepository.findMovementsByPlayer(player)).thenReturn(List.of(movement));
+        when(mockMovementRepository.findMovementByPlayerAndIsCurrentlyActiveTrue(player)).thenReturn(Optional.of(movement));
         when(mockMovementRepository.save(movement)).thenReturn(movement);
 
         //Act
@@ -346,35 +346,35 @@ public class MovementServiceTest {
 
         log.info("Test passed: cancelRpCharMovement throws ServiceException when no active movement is found!");
     }
-
-    @Test
-    void ensureCancelRpCharMovementThrowsSEWhenMoreThanOneMovement() {
-        log.debug("Testing if cancelRpCharMovement throws ServiceException when more than one active movement is found!");
-
-        // Assign
-        log.trace("Initializing player, rpchar and regions");
-        Region fromRegion = Region.builder().id("91").build();
-        RPChar rpChar = RPChar.builder().name("Belegorn Arnorion").currentRegion(fromRegion).build();
-        Player player = Player.builder().discordID("1234").ign("Lüktrönic").uuid("huehue").rpChar(rpChar).build();
-        Path endPath = Path.builder().path(List.of("91", "92")).cost(2).build();
-        Movement movement = Movement.builder().isCharMovement(true).player(player).path(endPath).isCurrentlyActive(true).build();
-        Movement movement2 = Movement.builder().isCharMovement(true).player(player).path(endPath).isCurrentlyActive(true).build();
-
-        log.trace("Initializing Dto");
-        DiscordIdDto dto = new DiscordIdDto("1234");
-
-        log.trace("Mocking methods");
-        when(mockPlayerRepository.findByDiscordID("1234")).thenReturn(Optional.of(player));
-        when(mockMovementRepository.findMovementsByPlayer(player)).thenReturn(List.of(movement, movement2));
-        when(mockMovementRepository.save(movement)).thenReturn(movement);
-
-        //Act
-        var exception = assertThrows(ServiceException.class, () -> movementService.cancelRpCharMovement(dto));
-
-        //Assert
-        log.debug("Starting asserts");
-        assertThat(exception.getMessage()).isEqualTo(ServiceException.moreThanOneActiveMovement(rpChar).getMessage());
-
-        log.info("Test passed: cancelRpCharMovement throws ServiceException when more than one active movement is found!");
-    }
+//
+//    @Test
+//    void ensureCancelRpCharMovementThrowsSEWhenMoreThanOneMovement() {
+//        log.debug("Testing if cancelRpCharMovement throws ServiceException when more than one active movement is found!");
+//
+//        // Assign
+//        log.trace("Initializing player, rpchar and regions");
+//        Region fromRegion = Region.builder().id("91").build();
+//        RPChar rpChar = RPChar.builder().name("Belegorn Arnorion").currentRegion(fromRegion).build();
+//        Player player = Player.builder().discordID("1234").ign("Lüktrönic").uuid("huehue").rpChar(rpChar).build();
+//        Path endPath = Path.builder().path(List.of("91", "92")).cost(2).build();
+//        Movement movement = Movement.builder().isCharMovement(true).player(player).path(endPath).isCurrentlyActive(true).build();
+//        Movement movement2 = Movement.builder().isCharMovement(true).player(player).path(endPath).isCurrentlyActive(true).build();
+//
+//        log.trace("Initializing Dto");
+//        DiscordIdDto dto = new DiscordIdDto("1234");
+//
+//        log.trace("Mocking methods");
+//        when(mockPlayerRepository.findByDiscordID("1234")).thenReturn(Optional.of(player));
+//        when(mockMovementRepository.findMovementsByPlayer(player)).thenReturn(List.of(movement, movement2));
+//        when(mockMovementRepository.save(movement)).thenReturn(movement);
+//
+//        //Act
+//        var exception = assertThrows(ServiceException.class, () -> movementService.cancelRpCharMovement(dto));
+//
+//        //Assert
+//        log.debug("Starting asserts");
+//        assertThat(exception.getMessage()).isEqualTo(ServiceException.moreThanOneActiveMovement(rpChar).getMessage());
+//
+//        log.info("Test passed: cancelRpCharMovement throws ServiceException when more than one active movement is found!");
+//    }
 }
