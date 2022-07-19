@@ -76,8 +76,8 @@ public class MovementService extends AbstractService<Movement, MovementRepositor
         Region region = fetchedRegion.get();
 
         log.debug("Checking if army is already in the desired region");
-        if(dto.toRegion().equals(army.getCurrentRegion())) {
-            log.warn("Army is already in desired region [{}], no movement required");
+        if(dto.toRegion().equals(army.getCurrentRegion().getId())) {
+            log.warn("Army is already in desired region [{}], no movement required", dto.toRegion());
             throw ArmyServiceException.cannotMoveArmyAlreadyInRegion(army.toString(),dto.toRegion());
         }
 
