@@ -18,6 +18,7 @@ import org.hibernate.service.internal.ServiceDependencyException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -279,6 +280,28 @@ public class ArmyServiceTest {
         log.info("Test passed: bind() correctly throws SE when Army is from a different faction");
     }
     @Test
+    void ensureBindArmyThrowsServiceExceptionWhenTargetPlayerIsWandererAndExecutorIsNotFactionLeaderOrLord() {
+        log.debug("Testing if SE is thrown when target player is wanderer and executor is not leader or lord");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Faction wanderer = Faction.builder().name("Wanderer").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player mirak = Player.builder().discordID(dto.targetDiscordId()).faction(wanderer).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockPlayerService.getPlayerByDiscordId(dto.targetDiscordId())).thenReturn(mirak);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when target player is wanderer and executor is not leader or lord");
+    }
+    @Test
     void ensureBindArmyThrowsServiceExceptionWhenTargetArmyIsInADifferentRegion() {
         log.debug("Testing if SE is thrown when target army is in a different region to the player");
 
@@ -324,4 +347,51 @@ public class ArmyServiceTest {
         log.info("Test passed: bind() correctly throws SE when Army is already bound to another player");
     }
 
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenArmyIsMoving() {
+        log.debug("Testing if SE is thrown when army is currently moving!");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Region region = Region.builder().id("90").build();
+        RPChar rpchar = RPChar.builder().name("Belegorn").currentRegion(region).build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).currentRegion(region).boundTo(null).build();
+        Movement move = Movement.builder().isCharMovement(false).isCurrentlyActive(true).army(army).path(Path.builder().path(List.of("90", "91")).build()).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+        when(mockMovementRepository.findMovementByArmyAndIsCurrentlyActiveTrue(army)).thenReturn(Optional.of(move));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when army is currently moving!");
+    }
+
+    @Test
+    void ensureBindArmyThrowsServiceExceptionWhenCharIsMoving() {
+        log.debug("Testing if SE is thrown when character is currently moving!");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Region region = Region.builder().id("90").build();
+        RPChar rpchar = RPChar.builder().name("Belegorn").currentRegion(region).build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).currentRegion(region).boundTo(null).build();
+        Movement move = Movement.builder().isCharMovement(false).isCurrentlyActive(true).player(luk).path(Path.builder().path(List.of("90", "91")).build()).build();
+
+        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
+        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.of(army));
+        when(mockMovementRepository.findMovementByPlayerAndIsCurrentlyActiveTrue(luk)).thenReturn(Optional.of(move));
+
+        log.debug("Calling bind()");
+        log.trace("Expecting ServiceException");
+        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
+
+        log.info("Test passed: bind() correctly throws SE when character is currently moving!");
+    }
 }

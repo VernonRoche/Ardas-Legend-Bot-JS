@@ -128,7 +128,6 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         return army;
     }
 
-    // TODO: Check if RPChar or Army has a movement that is active
     @Transactional(readOnly = false)
     public Army bind(BindArmyDto dto) {
         log.debug("Binding army [{}] to player with discord id [{}]", dto.armyName(), dto.targetDiscordId());
@@ -186,7 +185,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
             if(targetPlayer.getFaction().getName().equals("Wanderer")) {
                 log.debug("Target player is a wanderer - checking if executor is faction leader");
                 //TODO Check for Lords as well
-                if(!executor.getFaction().getLeader().equals(executor)) {
+                if(!executor.equals(executor.getFaction().getLeader())) {
                     log.warn("Player [{}] is not faction leader of [{}] and therefore cannot bind wanderers!", executor, executor.getFaction());
                     throw ArmyServiceException.onlyLeaderCanBindWanderer();
                 }
