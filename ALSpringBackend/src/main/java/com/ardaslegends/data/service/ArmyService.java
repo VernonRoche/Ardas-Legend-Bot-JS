@@ -15,10 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -166,15 +163,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         else
             targetPlayer = playerService.getPlayerByDiscordId(dto.targetDiscordId());
 
-        log.debug("Fetching the army [{}]", dto.armyName());
-        Optional<Army> fetchedArmy = armyRepository.findArmyByName(dto.armyName());
-
-        if (fetchedArmy.isEmpty()) {
-            log.warn("No army found with the name [{}]!", dto.armyName());
-            throw ArmyServiceException.noArmyWithName(dto.armyName());
-        }
-        Army army = fetchedArmy.get();
-        log.debug("Found army [{}] - type: [{}]", army.getName(), army.getArmyType().name());
+        Army army = getArmyByName(dto.armyName());
 
         // TODO: Check for Wanderer or Allied Faction
         log.debug("Checking if army and player are in the same faction");
@@ -252,14 +241,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         log.debug("Getting the army object");
 
         log.trace("Fetching the army by name");
-        Optional<Army> fetchedArmy = secureFind(dto.armyName(), armyRepository::findArmyByName);
-
-        log.trace("Checking if the army exists");
-        if(fetchedArmy.isEmpty()) {
-            log.warn("No army with the name [{}] found!", dto.armyName());
-            throw ArmyServiceException.noArmyWithName(dto.armyName());
-        }
-        Army army = fetchedArmy.get();
+        Army army = getArmyByName(dto.armyName());
 
         log.debug("Getting the currently bound player");
 
@@ -283,7 +265,7 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         if(!isUnbindingSelf) {
             log.debug("Executor is unbinding another player - checking if executor has permission to do so");
             //TODO check for lord as well
-            if(!executor.getFaction().getLeader().equals(executor)) { //checking if executor is leader
+            if(!executor.equals(executor.getFaction().getLeader())) { //checking if executor is leader
                 log.warn("Executor player [{}] is not faction leader or lord of [{}] and therefore cannot unbind other players!", executor, executor.getFaction());
                 throw ArmyServiceException.notFactionLeader(executor.getFaction().getName());
             }
@@ -301,6 +283,24 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         army = armyRepository.save(army);
 
         log.info("Unbound player [{}] from army [{}] (faction [{}])", boundPlayer, army, army.getFaction());
+        return army;
+    }
+
+    public Army getArmyByName(String armyName) {
+        log.debug("Getting army by name [{}]", armyName);
+        log.trace("Checking for null");
+        Objects.requireNonNull(armyName);
+
+        log.trace("Fetching the army by name");
+        Optional<Army> fetchedArmy = secureFind(armyName, armyRepository::findArmyByName);
+
+        log.trace("Checking if the army exists");
+        if(fetchedArmy.isEmpty()) {
+            log.warn("No army with the name [{}] found!",armyName);
+            throw ArmyServiceException.noArmyWithName(armyName);
+        }
+        Army army = fetchedArmy.get();
+        log.debug("Found army [{}] - type: [{}]", army.getName(), army.getArmyType().name());
         return army;
     }
 }

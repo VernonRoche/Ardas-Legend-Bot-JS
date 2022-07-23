@@ -240,25 +240,6 @@ public class ArmyServiceTest {
         var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
     }
     @Test
-    void ensureBindArmyThrowsServiceExceptionWhenTargetArmyNotFound() {
-        log.debug("Testing if SE is thrown when target army does not exist");
-
-        log.trace("Initializing data");
-        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
-        Faction gondor = Faction.builder().name("Gondor").build();
-        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
-        Player aned = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).build();
-
-        when(mockPlayerService.getPlayerByDiscordId(dto.executorDiscordId())).thenReturn(luk);
-        when(mockArmyRepository.findArmyByName(dto.armyName())).thenReturn(Optional.empty());
-
-        log.debug("Calling bind()");
-        log.trace("Expecting ServiceException");
-        var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
-
-        log.info("Test passed: bind() correctly throws SE when no Army has been found");
-    }
-    @Test
     void ensureBindArmyThrowsServiceExceptionWhenTargetArmyHasDifferentFaction() {
         log.debug("Testing if SE is thrown when target army has a different faction to the target player");
 
@@ -393,5 +374,114 @@ public class ArmyServiceTest {
         var result = assertThrows(ArmyServiceException.class, () -> armyService.bind(dto));
 
         log.info("Test passed: bind() correctly throws SE when character is currently moving!");
+    }
+
+    @Test
+    void ensureUnbindWorks() {
+        log.debug("Testing if unbinding players from armies works");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        RPChar rpchar = RPChar.builder().name("Belegorn").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).boundTo(luk).build();
+
+        when(mockArmyRepository.findArmyByName(army.getName())).thenReturn(Optional.of(army));
+        when(mockArmyRepository.save(army)).thenReturn(army);
+        when(mockPlayerService.getPlayerByDiscordId(luk.getDiscordID())).thenReturn(luk);
+
+        log.debug("Calling unbind()");
+        armyService.unbind(dto);
+
+        assertThat(army.getBoundTo()).isNull();
+        log.info("Test passed: unbind() works with proper data!");
+    }
+
+    @Test
+    void ensureUnbindThrowsSEWhenTargetIsOtherPlayer() {
+        log.debug("Testing if unbinding throws ServiceException when target is other player and executor is not leader!");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "mirak", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        RPChar rpchar = RPChar.builder().name("Tinwe").build();
+        Player luk = Player.builder().discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player mirak = Player.builder().discordID(dto.targetDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).boundTo(mirak).build();
+
+        when(mockArmyRepository.findArmyByName(army.getName())).thenReturn(Optional.of(army));
+        when(mockArmyRepository.save(army)).thenReturn(army);
+        when(mockPlayerService.getPlayerByDiscordId(luk.getDiscordID())).thenReturn(luk);
+        when(mockPlayerService.getPlayerByDiscordId(mirak.getDiscordID())).thenReturn(mirak);
+
+        log.debug("Calling unbind()");
+        var exception = assertThrows(ArmyServiceException.class, () -> armyService.unbind(dto));
+
+        assertThat(exception.getMessage()).isEqualTo(ArmyServiceException.notFactionLeader(gondor.getName()).getMessage());
+        log.info("Test passed: unbind() throws ArmyServiceException when target is other player and executor is not leader");
+    }
+
+    @Test
+    void ensureUnbindWorksWhenTargetIsOtherPlayerAndExecutorIsLeader() {
+        log.debug("Testing if unbinding works when target is other player and executor is leader!");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "mirak", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        RPChar rpchar = RPChar.builder().name("Tinwe").build();
+        Player luk = Player.builder().ign("Luk").discordID(dto.executorDiscordId()).faction(gondor).build();
+        Player mirak = Player.builder().ign("mirak").discordID(dto.targetDiscordId()).faction(gondor).rpChar(rpchar).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).boundTo(mirak).build();
+        gondor.setLeader(luk);
+
+        when(mockArmyRepository.findArmyByName(army.getName())).thenReturn(Optional.of(army));
+        when(mockArmyRepository.save(army)).thenReturn(army);
+        when(mockPlayerService.getPlayerByDiscordId(luk.getDiscordID())).thenReturn(luk);
+        when(mockPlayerService.getPlayerByDiscordId(mirak.getDiscordID())).thenReturn(mirak);
+
+        log.debug("Calling unbind()");
+        armyService.unbind(dto);
+
+        assertThat(army.getBoundTo()).isNull();
+        log.info("Test passed: unbind() works when target is other player and executor is leader");
+    }
+
+    @Test
+    void ensureUnbindThrowsSEWhenNoPlayerBound() {
+        log.debug("Testing if unbinding throws ArmyServiceException when no player is bound to the army!");
+
+        log.trace("Initializing data");
+        BindArmyDto dto = new BindArmyDto("Luktronic", "Luktronic", "Slayers of Orcs");
+        Faction gondor = Faction.builder().name("Gondor").build();
+        Player luk = Player.builder().ign("Luk").discordID(dto.executorDiscordId()).faction(gondor).build();
+        Army army = Army.builder().name(dto.armyName()).armyType(ArmyType.ARMY).faction(gondor).boundTo(null).build();
+
+        when(mockArmyRepository.findArmyByName(army.getName())).thenReturn(Optional.of(army));
+        when(mockArmyRepository.save(army)).thenReturn(army);
+        when(mockPlayerService.getPlayerByDiscordId(luk.getDiscordID())).thenReturn(luk);
+
+        log.debug("Calling unbind()");
+        var exception = assertThrows(ArmyServiceException.class, () -> armyService.unbind(dto));
+
+        assertThat(exception.getMessage()).isEqualTo(ArmyServiceException.noPlayerBoundToArmy(army.getName()).getMessage());
+        log.info("Test passed: unbind() throws ArmyServiceException when no player is bound to the army!");
+    }
+
+    @Test
+    void ensureGetArmyByNaameThrowsServiceExceptionWhenArmyNotFound() {
+        log.debug("Testing if ASE is thrown when target army does not exist");
+
+        log.trace("Initializing data");
+        String armyName = "Knights of Gondor";
+
+        when(mockArmyRepository.findArmyByName(armyName)).thenReturn(Optional.empty());
+
+        log.debug("Calling getArmyByName");
+        log.trace("Expecting ArmyServiceException");
+        var exception = assertThrows(ArmyServiceException.class, () -> armyService.getArmyByName(armyName));
+
+        assertThat(exception.getMessage()).isEqualTo(ArmyServiceException.noArmyWithName(armyName).getMessage());
+        log.info("Test passed: getArmyByName() correctly throws ASE when no Army has been found");
     }
 }
