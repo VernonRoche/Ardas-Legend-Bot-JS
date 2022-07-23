@@ -11,6 +11,7 @@ public class ArmyServiceException extends ServiceException{
     private static final String NOT_IN_SAME_REGION = "Army/Company '%s' is not in the same region as character '%s'!";
     private static final String NOT_SAME_FACTION = "You are not in the same faction as army/company '%s'! Your faction: '%s' - army's/company's faction: '%s'!";
     private static final String ALREADY_BOUND = "The army/company '%s' is already bound to the player '%s'!";
+    private static final String NO_PLAYER_BOUND_TO_ARMY = "There is no player bound to the army '%s'!";
     private static final String TOO_HIGH_TOKEN_COUNT = "The army's token count exceeds the maximum of 30, it currently is '%s";
     private static final String CANNOT_MOVE_ARMY_DUE_TO_ALREADY_MOVING = "Cannot move army '%s' because it is already in a movement! Cancel its movement to submit a new one";
     private static final String MAX_ARMY_OR_COMPANIES_CREATED = "The claimbuild '%s' is already at maximum armies/companies created: %s";
@@ -26,6 +27,7 @@ public class ArmyServiceException extends ServiceException{
     public static ArmyServiceException notInSameRegion(String armyName, String charName) { return new ArmyServiceException(NOT_IN_SAME_REGION.formatted(armyName, charName)); }
     public static ArmyServiceException notSameFaction(String armyName, String playerFactionName, String armyFactionName) { return new ArmyServiceException(NOT_SAME_FACTION.formatted(armyName, playerFactionName, armyFactionName)); }
     public static ArmyServiceException alreadyBound(String armyName, String playerName) { return new ArmyServiceException(ALREADY_BOUND.formatted(armyName, playerName)); }
+    public static ArmyServiceException noPlayerBoundToArmy(String armyName) { return new ArmyServiceException(NO_PLAYER_BOUND_TO_ARMY.formatted(armyName)); }
     public static ArmyServiceException tooHighTokenCount(int tokenCount) {return new ArmyServiceException(TOO_HIGH_TOKEN_COUNT.formatted(tokenCount)); };
     public static ArmyServiceException maxArmyOrCompany(String claimbuild, String units) {return new ArmyServiceException(MAX_ARMY_OR_COMPANIES_CREATED.formatted(claimbuild, units)); }
     public static ArmyServiceException onlyLeaderCanBindWanderer() {return new ArmyServiceException(ONLY_FACTION_LEADER_CAN_BIND_WANDERER);}

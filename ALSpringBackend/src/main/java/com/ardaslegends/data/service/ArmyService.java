@@ -234,4 +234,73 @@ public class ArmyService extends AbstractService<Army, ArmyRepository> {
         log.info("Bound {} [{}] to player [{}]!", army.getArmyType().name(), army.getName(), targetPlayer);
         return army;
     }
+
+    @Transactional(readOnly = false)
+    public Army unbind(BindArmyDto dto) {
+        log.debug("Unbinding army [{}] from player [{}] - executed by player [{}]", dto.armyName(), dto.targetDiscordId(), dto.executorDiscordId());
+
+        log.trace("Validating data...");
+        ServiceUtils.checkNulls(dto, List.of("armyName", "executorDiscordId"));
+        ServiceUtils.checkBlanks(dto, List.of("armyName", "executorDiscordId"));
+
+        log.trace("Calling playerService to get executor's instance");
+        Player executor = playerService.getPlayerByDiscordId(dto.executorDiscordId());
+
+        /*
+        Getting the army and checking if the army has a player bound to it
+         */
+        log.debug("Getting the army object");
+
+        log.trace("Fetching the army by name");
+        Optional<Army> fetchedArmy = secureFind(dto.armyName(), armyRepository::findArmyByName);
+
+        log.trace("Checking if the army exists");
+        if(fetchedArmy.isEmpty()) {
+            log.warn("No army with the name [{}] found!", dto.armyName());
+            throw ArmyServiceException.noArmyWithName(dto.armyName());
+        }
+        Army army = fetchedArmy.get();
+
+        log.debug("Getting the currently bound player");
+
+        Player boundPlayer = army.getBoundTo();
+        log.trace("Checking if the army has a player bound to it");
+        if(boundPlayer == null) {
+            log.warn("There is no player bound to the army [{}]", army);
+            throw ArmyServiceException.noPlayerBoundToArmy(army.getName());
+        }
+
+        /*
+        Checking if executor has permission to unbind player
+        If target player is not the executor - check if executor is leader or lord
+         */
+
+        log.debug("Checking if executor has permission to unbind target player");
+
+        log.trace("Checking if player is unbinding themselves");
+        boolean isUnbindingSelf = executor.getDiscordID().equals(dto.targetDiscordId());
+
+        if(!isUnbindingSelf) {
+            log.debug("Executor is unbinding another player - checking if executor has permission to do so");
+            //TODO check for lord as well
+            if(!executor.getFaction().getLeader().equals(executor)) { //checking if executor is leader
+                log.warn("Executor player [{}] is not faction leader or lord of [{}] and therefore cannot unbind other players!", executor, executor.getFaction());
+                throw ArmyServiceException.notFactionLeader(executor.getFaction().getName());
+            }
+        }
+
+        /*
+        Unbind and save player
+         */
+
+        log.debug("Unbinding player and saving changes...");
+
+        log.trace("Setting bound player to null");
+        army.setBoundTo(null);
+        log.trace("Persisting army");
+        army = armyRepository.save(army);
+
+        log.info("Unbound player [{}] from army [{}] (faction [{}])", boundPlayer, army, army.getFaction());
+        return army;
+    }
 }
