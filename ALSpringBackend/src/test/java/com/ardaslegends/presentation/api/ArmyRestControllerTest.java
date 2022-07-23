@@ -78,5 +78,29 @@ public class ArmyRestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isOk());
+        log.info("Test passed: bindArmy requests get handled properly");
+    }
+
+    @Test
+    void ensureUnbindArmyRequestWorksProperly() throws Exception{
+        log.debug("Testing if ArmyRestController unbindArmy works properly with correct values");
+
+        // Assign
+        BindArmyDto dto = new BindArmyDto("1234", "1234", "Knights of Gondor");
+
+        when(mockArmyService.unbind(dto)).thenReturn(Army.builder().name("Knights of Gondor").build());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+
+        String requestJson = ow.writeValueAsString(dto);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("http://localhost:8080/api/army/unbind-army")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk());
+        log.info("Test passed: unbindArmy requests get handled properly");
     }
 }

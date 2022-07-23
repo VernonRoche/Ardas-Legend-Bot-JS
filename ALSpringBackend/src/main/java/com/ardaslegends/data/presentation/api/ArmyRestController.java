@@ -20,6 +20,7 @@ public class ArmyRestController extends AbstractRestController {
     public static final String BASE_URL = "/api/army";
     private static final String PATH_CREATE_ARMY = "/create";
     private static final String PATH_BIND_ARMY = "/bind-army";
+    private static final String PATH_UNBIND_ARMY = "/unbind-army";
 
     private final ArmyService armyService;
 
@@ -43,5 +44,16 @@ public class ArmyRestController extends AbstractRestController {
 
         log.info("Sending successful bindArmy request for [{}]", boundArmy.getName());
         return ResponseEntity.ok(boundArmy);
+    }
+
+    @PatchMapping(PATH_UNBIND_ARMY)
+    public HttpEntity<Army> unbindArmy(@RequestBody BindArmyDto dto) {
+        log.debug("Incoming unbindArmy Request: Data [{}]", dto);
+
+        log.debug("Calling ArmyService.unbind()");
+        Army unboundArmy = wrappedServiceExecution(dto, armyService::unbind);
+
+        log.info("Sending successful unbindArmy request for [{}]", unboundArmy.getName());
+        return ResponseEntity.ok(unboundArmy);
     }
 }
